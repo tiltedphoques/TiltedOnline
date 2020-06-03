@@ -19,3 +19,4 @@ Check GETTINGSTARTED.md for the detailed steps.
 - Try to keep your code clean.
 - A bot will ask you to sign a CLA when making a PR.
 
+:)
