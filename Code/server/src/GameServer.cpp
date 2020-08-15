@@ -6,6 +6,7 @@
 #include <Events/UpdateEvent.h>
 #include <Events/PlayerJoinEvent.h>
 #include <Events/PlayerLeaveEvent.h>
+
 #include <Messages/ClientMessageFactory.h>
 #include <Messages/AuthenticationRequest.h>
 #include <Messages/CancelAssignmentRequest.h>
@@ -16,6 +17,7 @@
 #include <Messages/ClientReferencesMoveRequest.h>
 #include <Messages/RequestInventoryChanges.h>
 #include <Messages/RequestFactionsChanges.h>
+#include <Messages/RequestQuestUpdate.h>
 
 #include <Scripts/Player.h>
 
@@ -109,6 +111,7 @@ void GameServer::OnConsume(const void* apData, const uint32_t aSize, const Conne
         SERVER_DISPATCH(EnterCellRequest);
         SERVER_DISPATCH(RequestInventoryChanges);
         SERVER_DISPATCH(RequestFactionsChanges);
+        SERVER_DISPATCH(RequestQuestUpdate);
     default:
         spdlog::error("Client message opcode {} from {:x} has no handler", pMessage->GetOpcode(), aConnectionId);
         break;
@@ -122,14 +125,14 @@ void GameServer::OnConnection(const ConnectionId_t aHandle)
     SetTitle();
 }
 
-void GameServer::OnDisconnection(const ConnectionId_t aConnectionId)
+void GameServer::OnDisconnection(const ConnectionId_t aConnectionId, DisconnectReason aReason)
 {
     StackAllocator<1 << 14> allocator;
     ScopedAllocator _{ allocator };
 
     spdlog::info("Connection ended {:x}", aConnectionId);
 
-    m_pWorld->GetScriptService().HandlePlayerQuit(aConnectionId);
+    m_pWorld->GetScriptService().HandlePlayerQuit(aConnectionId, aReason);
 
     Vector<entt::entity> entitiesToDestroy;
     entitiesToDestroy.reserve(500);
@@ -234,6 +237,7 @@ void GameServer::HandleAuthenticationRequest(const ConnectionId_t aConnectionId,
         auto& playerComponent = registry.emplace<PlayerComponent>(cEntity, aConnectionId);
 
         playerComponent.Endpoint = remoteAddress;
+        playerComponent.DiscordId = acRequest->DiscordId;
 
         AuthenticationResponse serverResponse;
 
@@ -279,9 +283,7 @@ void GameServer::HandleAuthenticationRequest(const ConnectionId_t aConnectionId,
             spdlog::info("New player {:x} has a been rejected because \"{}\".", aConnectionId, reason.c_str());
 
             Kick(aConnectionId);
-
             m_pWorld->destroy(cEntity);
-
             return;
         }
 

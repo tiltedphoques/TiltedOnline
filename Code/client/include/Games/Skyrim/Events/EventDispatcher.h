@@ -38,6 +38,11 @@ struct UnknownEvent
 
 };
 
+struct BGSEventProcessedEvent
+{
+
+};
+
 struct TESActivateEvent
 {
 
@@ -163,6 +168,11 @@ struct TESPackageEvent
 
 };
 
+struct TESInitScriptEvent
+{
+
+};
+
 struct TESPerkEntryRunEvent
 {
 
@@ -170,12 +180,20 @@ struct TESPerkEntryRunEvent
 
 struct TESQuestInitEvent
 {
-
+    uint32_t formId;
 };
 
 struct TESQuestStageEvent
 {
+    uint64_t pad0;
+    uint32_t formId;
+    uint16_t stage;
+    uint16_t pad14;
+};
 
+struct TESQuestStartStopEvent
+{
+    uint32_t formId;
 };
 
 struct TESResetEvent
@@ -277,14 +295,14 @@ struct EventDispatcherManager
 {
     static EventDispatcherManager* Get() noexcept;
 
-    EventDispatcher<UnknownEvent> unknownDispatcher1;
+    EventDispatcher<BGSEventProcessedEvent> eventProcessedEvent;
     EventDispatcher<TESActivateEvent> activateEvent;
     EventDispatcher<TESActiveEffectApplyRemove> activeEffectApplyRemove;
     EventDispatcher<TESActorLocationChangeEvent> actorLocationChangeEvent;
     EventDispatcher<TESBookReadEvent> bookReadEvent;
     EventDispatcher<TESCellAttachDetachEvent> cellAttachDetachEvent;
     EventDispatcher<TESCellFullyLoadedEvent> cellFullyLoadedEvent;
-    EventDispatcher<UnknownEvent> unknownDispatcher8;
+    EventDispatcher<UnknownEvent> unknownDispatcher8; //apply decals event
     EventDispatcher<TESCombatEvent> combatEvent;
     EventDispatcher<TESContainerChangedEvent> containerChangedEvent;
     EventDispatcher<TESDeathEvent> deathEvent;
@@ -294,9 +312,9 @@ struct EventDispatcherManager
     EventDispatcher<TESFormDeleteEvent> formDeleteEvent;
     EventDispatcher<TESFurnitureEvent> furnitureEvent;
     EventDispatcher<TESGrabReleaseEvent> grabReleaseEvent;
-    EventDispatcher<TESHitEvent> hitEvent;
+    EventDispatcher<TESHitEvent> hitEvent; //validated
+    EventDispatcher<TESInitScriptEvent> initScriptEvent;
     EventDispatcher<TESLoadGameEvent> loadGameEvent;
-    EventDispatcher<UnknownEvent> unknownDispatcher19;
     EventDispatcher<TESLockChangedEvent> lockChangedEvent;
     EventDispatcher<TESMagicEffectApplyEvent> magicEffectApplyEvent;
     EventDispatcher<TESMagicWardHitEvent> magicWardHitEvent;
@@ -306,11 +324,11 @@ struct EventDispatcherManager
     EventDispatcher<TESOpenCloseEvent> openCloseEvent;
     EventDispatcher<TESPackageEvent> packageEvent;
     EventDispatcher<TESPerkEntryRunEvent> perkEntryRunEvent;
-    EventDispatcher<TESQuestInitEvent> questInitEvent;
+    EventDispatcher<TESQuestInitEvent> questInitEvent; //9F8
     EventDispatcher<TESQuestStageEvent> questStageEvent;
-    EventDispatcher<UnknownEvent> unknownDispatcher31;
-    EventDispatcher<UnknownEvent> unknownDispatcher32;
-    EventDispatcher<TESResetEvent> resetEvent;
+    EventDispatcher<UnknownEvent> unkx; 
+    EventDispatcher<TESQuestStartStopEvent> questStartStopEvent; // TESResolveNPCTemplatesEvent
+    EventDispatcher<TESResetEvent> resetEvent; //validated 0xB58
     EventDispatcher<TESResolveNPCTemplatesEvent> resolveNPCTemplatesEvent;
     EventDispatcher<TESSceneEvent> sceneEvent;
     EventDispatcher<TESSceneActionEvent> sceneActionEvent;
@@ -327,11 +345,13 @@ struct EventDispatcherManager
     EventDispatcher<TESTriggerEnterEvent> triggerEnterEvent;
     EventDispatcher<TESTriggerLeaveEvent> triggerLeaveEvent;
     EventDispatcher<TESUniqueIDChangeEvent> uniqueIDChangeEvent;
-    EventDispatcher<UnknownEvent> unknownDispatcher50;
-    EventDispatcher<UnknownEvent> unknownDispatcher51;
+    EventDispatcher<UnknownEvent> unknownDispatcher50; //waitevent
+    EventDispatcher<UnknownEvent> unknownDispatcher51; //TESWaitStopEvent
     EventDispatcher<TESSwitchRaceCompleteEvent> switchRaceCompleteEvent;
     EventDispatcher<TESFastTravelEndEvent> fastTravelEndEvent;
 };
+
+//constexpr auto x = offsetof(EventDispatcherManager, trackedStatsEvent);
 
 static_assert(sizeof(EventDispatcherManager) == 4752);
 static_assert(offsetof(EventDispatcherManager, activateEvent) == 88);
@@ -343,5 +363,8 @@ static_assert(offsetof(EventDispatcherManager, trackedStatsEvent) == 3872);
 static_assert(offsetof(EventDispatcherManager, triggerEvent) == 4048);
 static_assert(offsetof(EventDispatcherManager, switchRaceCompleteEvent) == 4576);
 static_assert(offsetof(EventDispatcherManager, fastTravelEndEvent) == 4664);
+static_assert(offsetof(EventDispatcherManager, questInitEvent) == 0x9F8);
+static_assert(offsetof(EventDispatcherManager, questStageEvent) == 0xA50);
+static_assert(offsetof(EventDispatcherManager, questStartStopEvent) == 0xB00);
 
 #endif

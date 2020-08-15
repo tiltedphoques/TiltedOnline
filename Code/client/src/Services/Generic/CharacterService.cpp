@@ -4,6 +4,7 @@
 #include <Games/References.h>
 
 #include <Games/Skyrim/Forms/TESNPC.h>
+#include <Games/Skyrim/Forms/TESQuest.h>
 #include <Games/Skyrim/Misc/ActorProcessManager.h>
 #include <Games/Skyrim/Misc/MiddleProcess.h>
 #include <Games/Skyrim/ExtraData/ExtraLeveledCreature.h>
@@ -449,6 +450,26 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
         }
     }
 #endif
+
+    if (isPlayer)
+    {
+        auto& entries = message.QuestContent.Entries;
+        auto& questTargets = PlayerCharacter::Get()->questTargets;
+
+        entries.resize(questTargets.length);
+
+        // we add 2 to accomdate for a 16 byte padding during iteration
+        int j = 0;
+        for (auto i = 0; i < (questTargets.length * 2); i += 2)
+        {
+            auto* pQuest = questTargets[i]->quest;
+            entries[j].Id = pQuest->formID;
+            entries[j].CurrentStage = pQuest->currentStage;
+            entries[j].Flags = pQuest->flags;
+            entries[j].NameId = pQuest->idName.AsAscii();
+            j++;
+        }
+    }
 
     message.InventoryContent = pActor->GetInventory();
     message.FactionsContent = pActor->GetFactions();

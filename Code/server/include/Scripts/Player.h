@@ -10,6 +10,7 @@ namespace Script
 
         const Vector<String>& GetMods() const;
         const String& GetIp() const;
+        const uint64_t GetDiscordId() const;
 
         [[nodiscard]] const Vector3<float>& GetPosition() const;
         [[nodiscard]] const Vector3<float>& GetRotation() const;
@@ -23,5 +24,8 @@ namespace Script
         }
 
         bool AddComponent(sol::object aObject) const override;
+
+        bool AddQuest(uint16_t aformId);
+        bool RemoveQuest(uint16_t aformId);
     };
 }

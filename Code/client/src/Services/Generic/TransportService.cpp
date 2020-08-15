@@ -12,7 +12,9 @@
 #include <Packet.hpp>
 #include <Messages/AuthenticationRequest.h>
 #include <ScratchAllocator.hpp>
+
 #include <Services/ImguiService.h>
+#include <Services/DiscordService.h>
 #include <imgui.h>
 
 #include <Messages/AuthenticationResponse.h>
@@ -115,6 +117,10 @@ void TransportService::OnConnected()
 {
     AuthenticationRequest request;
 
+    // null if discord is not active
+    // TODO: think about user opt out
+    request.DiscordId = m_world.ctx<DiscordService>().GetUser().id;
+
     const auto cpModManager = ModManager::Get();
 
     for (auto pMod : cpModManager->mods)
@@ -168,7 +174,6 @@ void TransportService::OnDraw() noexcept
     if(IsOnline())
     {
         ImGui::Begin("Network");
-
         auto status = GetConnectionStatus();
         status.m_flOutBytesPerSec /= 1024.f;
         status.m_flInBytesPerSec /= 1024.f;
@@ -187,7 +192,6 @@ void TransportService::OnDraw() noexcept
 
         ImGui::InputFloat("User Out kBps", (float*)&uncompressedSent, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_ReadOnly);
         ImGui::InputFloat("User In kBps", (float*)&uncompressedReceived, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_ReadOnly);
-
         ImGui::End();
     }
 }

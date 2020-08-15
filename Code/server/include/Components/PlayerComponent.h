@@ -13,5 +13,6 @@ struct PlayerComponent
     ConnectionId_t ConnectionId;
     std::optional<entt::entity> Character;
     Vector<String> Mods;
+    uint64_t DiscordId;
     String Endpoint;
 };

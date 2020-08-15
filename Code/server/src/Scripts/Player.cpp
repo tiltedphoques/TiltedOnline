@@ -13,15 +13,19 @@ namespace Script
     const Vector<String>& Player::GetMods() const
     {
         auto& playerComponent = m_pWorld->get<PlayerComponent>(m_entity);
-
         return playerComponent.Mods;
     }
 
     const String& Player::GetIp() const
     {
         auto& playerComponent = m_pWorld->get<PlayerComponent>(m_entity);
-
         return playerComponent.Endpoint;
+    }
+
+    const uint64_t Player::GetDiscordId() const
+    {
+        auto& playerComponent = m_pWorld->get<PlayerComponent>(m_entity);
+        return playerComponent.DiscordId;
     }
 
     const Vector3<float>& Player::GetPosition() const
@@ -59,6 +63,20 @@ namespace Script
             const Script::Npc npc(*playerComponent.Character, *m_pWorld);
             return npc.AddComponent(aObject);
         }
+
+        return false;
+    }
+
+    bool Player::AddQuest(uint16_t aformId)
+    {
+        auto& component = m_pWorld->get<QuestLogComponent>(m_entity);
+
+        return false;
+    }
+
+    bool Player::RemoveQuest(uint16_t aformId)
+    {
+        auto& component = m_pWorld->get<QuestLogComponent>(m_entity);
 
         return false;
     }

@@ -112,9 +112,34 @@ std::tuple<bool, String> ScriptService::HandleMove(const Script::Npc& aNpc) noex
     return CallCancelableEvent("onCharacterMove", aNpc);
 }
 
-void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId) noexcept
+void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::DisconnectReason aReason) noexcept
 {
-    CallEvent("onPlayerQuit", aConnectionId);
+    std::string reason;
+
+    switch (aReason)
+    {
+    case Server::DisconnectReason::Quit:
+        reason = "Quit";
+        break;
+    case Server::DisconnectReason::Kicked:
+        reason = "Kicked";
+        break;
+    case Server::DisconnectReason::Banned:
+        reason = "Banned";
+        break;
+    case Server::DisconnectReason::BadConnection:
+        reason = "Bad Connection";
+        break;
+    case Server::DisconnectReason::TimedOut:
+        reason = "Timed out";
+        break;
+    case Server::DisconnectReason::Unknown:
+    default:
+        reason = "Unknown";
+        break;
+    }
+
+    CallEvent("onPlayerQuit", aConnectionId, reason);
 }
 
 void ScriptService::RegisterExtensions(ScriptContext& aContext)
@@ -166,7 +191,13 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["id"] = sol::readonly_property(&Player::GetId);
     playerType["mods"] = sol::readonly_property(&Player::GetMods);
     playerType["ip"] = sol::readonly_property(&Player::GetIp);
+    playerType["discordid"] = sol::readonly_property(&Player::GetDiscordId);
     playerType["AddComponent"] = &Player::AddComponent;
+
+    //TBD
+    playerType["AddQuest"] = &Player::AddQuest;
+    playerType["RemoveQuest"] = &Player::RemoveQuest;
+    //playerType["Getquests"] = ;
 
     auto worldType = aContext.new_usertype<World>("World", sol::no_constructor);
     worldType["get"] = [this]() { return &m_world; };
@@ -179,12 +210,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetTime"] = &EnvironmentService::GetTime;
     clockType["GetDate"] = &EnvironmentService::GetDate;
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
-    clockType["GetRealTime"] = []() { 
-        auto t = std::time(nullptr);
-        int h = (t / 3600) % 24;
-        int m = (t / 60) % 60;
-        return std::pair{h, m};
-    };
+    clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
 }
 
 void ScriptService::BindStaticFunctions(ScriptContext& aContext) noexcept

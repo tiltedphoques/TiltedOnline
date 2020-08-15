@@ -96,6 +96,11 @@ struct GameList
 
     Entry entry;
 
+    inline bool empty() const noexcept
+    {
+        return entry.data == nullptr;
+    }
+
     // Range for loop compatibility
     struct Iterator 
     {

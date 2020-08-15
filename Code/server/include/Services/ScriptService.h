@@ -33,7 +33,7 @@ struct ScriptService : ScriptStore
     std::tuple<bool, String> HandlePlayerEnterWorld(const Script::Player& aPlayer) noexcept;
     std::tuple<bool, String> HandleMove(const Script::Npc& aNpc) noexcept;
 
-    void HandlePlayerQuit(ConnectionId_t aConnectionId) noexcept;
+    void HandlePlayerQuit(ConnectionId_t aConnectionId, Server::DisconnectReason aReason) noexcept;
 
 protected:
 

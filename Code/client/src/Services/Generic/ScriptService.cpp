@@ -15,10 +15,35 @@
 #include <Games/Fallout4/Forms/TESForm.h>
 #include <Games/Fallout4/Actor.h>
 
+#include <Games/Skyrim/Events/EventDispatcher.h>
 #include <Messages/ClientRpcCalls.h>
 
 #include <imgui.h>
 
+// this event exists, but seems to be never triggered :(
+// WIP
+struct GameEventHandler final : public BSTEventSink<BGSEventProcessedEvent>
+{
+    GameEventHandler(ScriptService& aQuestSv) : m_parent(aQuestSv)
+    {}
+
+    ~GameEventHandler() override
+    {
+    }
+
+    Result OnEvent(const BGSEventProcessedEvent* apEvent, const EventDispatcher<BGSEventProcessedEvent>*) override
+    {
+   
+        return Result::kOk;
+    }
+
+    static bool s_mRegistered;
+
+private:
+    ScriptService& m_parent;
+};
+
+bool GameEventHandler::s_mRegistered = false;
 
 ScriptService::ScriptService(World& aWorld, entt::dispatcher& aDispatcher, ImguiService& aImguiService, TransportService& aTransportService) noexcept
     : ScriptStore(false)
@@ -35,6 +60,8 @@ ScriptService::ScriptService(World& aWorld, entt::dispatcher& aDispatcher, Imgui
     m_disconnectedConnection = m_dispatcher.sink<DisconnectedEvent>().connect<&ScriptService::OnDisconnected>(this);
 
     m_drawImGuiConnection = aImguiService.OnDraw.connect<&ScriptService::OnDraw>(this);
+
+    m_pEventHandler = std::make_unique<GameEventHandler>(*this);
 }
 
 ScriptService::~ScriptService() noexcept
@@ -44,6 +71,7 @@ ScriptService::~ScriptService() noexcept
 
 void ScriptService::OnUpdate(const UpdateEvent& acUpdateEvent) noexcept
 {
+
     ClientRpcCalls message;
 
     Buffer buff(10000);

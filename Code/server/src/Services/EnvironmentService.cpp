@@ -57,9 +57,16 @@ EnvironmentService::TTime EnvironmentService::GetTime() const noexcept
     return {static_cast<int>(hour), flatMinutes};
 }
 
+EnvironmentService::TTime EnvironmentService::GetRealTime() noexcept
+{
+    auto t = std::time(nullptr);
+    int h = (t / 3600) % 24;
+    int m = (t / 60) % 60;
+    return {h, m};
+}
+
 EnvironmentService::TDate EnvironmentService::GetDate() const noexcept
 {
-    // return the Date in a **reasonable** format
     return {m_timeModel.Day, m_timeModel.Month, m_timeModel.Year};
 }
 
