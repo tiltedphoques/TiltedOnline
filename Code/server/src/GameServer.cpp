@@ -276,7 +276,7 @@ void GameServer::HandleAuthenticationRequest(const ConnectionId_t aConnectionId,
         }
 
         Script::Player player(cEntity, *m_pWorld);
-        auto [canceled, reason] = scripts.HandlePlayerConnect(player);
+        auto [canceled, reason] = scripts.HandlePlayerJoin(player);
 
         if (canceled)
         {

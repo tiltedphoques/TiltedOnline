@@ -17,12 +17,14 @@ struct TESQuest : BGSStoryManagerTreeForm
         WaitingForStage
     };
 
-    enum Flags
+    enum Flags : uint16_t
     {
-        Unk0,
-        Enabled,
-        Completed,
-        All = 256
+        Disabled,
+        Enabled = 1 << 0,
+        Completed = 1 << 1,
+        Started = 1 << 7,
+        Unk = 2 << 10, // this is very likely a combination
+        Unk2 = 8 << 10,
     };
 
     struct Objective
@@ -53,10 +55,11 @@ struct TESQuest : BGSStoryManagerTreeForm
     char pad_0x0030[0x20];         // 0x0030
     GameArray<void*> aliases;      // 0x0058
     char pad_0x0070[0x6C];         // 0x0070
-    uint16_t flags;                // 0x00DC
+    uint16_t flags;                // 0x00DC default init: 256
     uint8_t priority;              // 0x00DE
     uint8_t type;                  // 0x00DF
-    uint64_t padDF;                // 0x00E0
+    uint32_t scopedStatus;         // 0x00E0 default init: -1, if not -1 outside of story manager scope
+    uint32_t padE4;
     GameList<Stage> stages;        // 0x00E8
     GameList<Objective> objectives;    // 0x00F8
     char pad_0x0108[0x100];            // 0x0108
@@ -67,34 +70,29 @@ struct TESQuest : BGSStoryManagerTreeForm
     BSString idName; // < this is the proper quest ID
     uint64_t pad;
     uint64_t unkFlags;
+    char pad250[24];
+
+    bool IsStageDone(uint16_t stageIndex);
+    void SetCompleted(bool force);
+
+    void CompleteAllObjectives();// completes all objectives + stages
+    void SetActive(bool toggle); // < is the quest selected in journal and followed?
 
     inline bool IsEnabled() const { return flags & Flags::Enabled; }
     inline void Disable() { flags &= ~Flags::Enabled; };
 
-    bool IsStageDone(uint16_t stageIndex);
-
-    void SetCompleted(bool force);
-
-    // completes all objectives + stages
-    void CompleteAllObjectives();
-
-    // is the quest selected in journal and followed?
-    void SetActive(bool toggle);
-
     inline bool IsActive() const { return flags & 0x800; }
-    inline bool IsStopped() const { return (flags & 0x81) == 0; }
+    inline bool IsStopped() const { return (flags & (Flags::Enabled | Flags::Started)) == 0; } // & 0x81
 
     bool Kill();
-
     State getState();
 };
 
+static_assert(sizeof(TESQuest) == 616);
 static_assert(offsetof(TESQuest, fullName) == 0x28);
 static_assert(offsetof(TESQuest, objectives) == 0xF8);
 static_assert(offsetof(TESQuest, currentStage) == 0x228);
 static_assert(offsetof(TESQuest, unkFlags) == 0x248);
 static_assert(offsetof(TESQuest, flags) == 0xDC);
-
-//static_assert(sizeof(TESQuest::Objective) == 0x28);
 
 #endif

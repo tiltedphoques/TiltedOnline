@@ -1,12 +1,31 @@
 #pragma once
 
-#include <Structs/Quest.h>
+#include <cstdint>
+#include <Stl.hpp>
+#include <Buffer.hpp>
+#include <Structs/GameId.h>
 
 using TiltedPhoques::Vector;
 
 struct QuestLog
 {
-    Vector<Quest> Entries{};
+    struct Entry
+    {
+        GameId Id;
+        uint16_t Stage;
+
+        bool operator==(const Entry& acRhs) const noexcept
+        {
+            return Id == acRhs.Id && Stage == acRhs.Stage;
+        }
+
+        bool operator!=(const Entry& acRhs) const noexcept
+        {
+            return !this->operator==(acRhs);
+        }
+    };
+
+    Vector<Entry> Entries{};
 
     QuestLog() = default;
     ~QuestLog() = default;

@@ -1,5 +1,6 @@
 #include <Services/CharacterService.h>
 #include <Services/TransportService.h>
+#include <Services/QuestService.h>
 
 #include <Games/References.h>
 
@@ -390,12 +391,12 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
 
     uint32_t baseId = 0;
     uint32_t modId = 0;
-    if (!World::Get().GetModSystem().GetServerModId(formIdComponent.Id, modId, baseId))
+    if (!m_world.GetModSystem().GetServerModId(formIdComponent.Id, modId, baseId))
         return;
 
     uint32_t cellBaseId = 0;
     uint32_t cellModId = 0;
-    if (!World::Get().GetModSystem().GetServerModId(pActor->GetCellId(), cellModId, cellBaseId))
+    if (!m_world.GetModSystem().GetServerModId(pActor->GetCellId(), cellModId, cellBaseId))
         return;
 
     AssignCharacterRequest message;
@@ -453,20 +454,24 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
 
     if (isPlayer)
     {
-        auto& entries = message.QuestContent.Entries;
+        auto& questLog = message.QuestContent.Entries;
         auto& questTargets = PlayerCharacter::Get()->questTargets;
-
-        entries.resize(questTargets.length);
+        auto& modSystem = m_world.GetModSystem();
 
         // we add 2 to accomdate for a 16 byte padding during iteration
         int j = 0;
         for (auto i = 0; i < (questTargets.length * 2); i += 2)
         {
             auto* pQuest = questTargets[i]->quest;
-            entries[j].Id = pQuest->formID;
-            entries[j].CurrentStage = pQuest->currentStage;
-            entries[j].Flags = pQuest->flags;
-            entries[j].NameId = pQuest->idName.AsAscii();
+
+            GameId Id;
+            if (!QuestService::IsNonSyncableQuest(pQuest) && modSystem.GetServerModId(pQuest->formID, Id)) 
+            {
+                auto& entry = questLog.emplace_back();
+                entry.Stage = pQuest->currentStage;
+                entry.Id = Id;
+            }
+
             j++;
         }
     }

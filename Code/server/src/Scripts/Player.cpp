@@ -1,5 +1,6 @@
 #include <Scripts/Player.h>
 #include <Scripts/Npc.h>
+#include <Scripts/Quest.h>
 
 #include <World.h>
 #include <Components.h>
@@ -67,17 +68,42 @@ namespace Script
         return false;
     }
 
-    bool Player::AddQuest(uint16_t aformId)
+    const Quest& Player::AddQuest(String& aModName, uint16_t aformId)
     {
-        auto& component = m_pWorld->get<QuestLogComponent>(m_entity);
+        auto& questComponent = m_pWorld->get<QuestLogComponent>(m_entity);
+        auto& modComponent = m_pWorld->get<ModsComponent>(m_entity);
+        auto& entries = questComponent.QuestContent.Entries;
+#if 0
+        auto it = std::find_if()
 
-        return false;
+        auto& entries = component.QuestContent.Entries;
+        auto& service = m_pWorld->GetQuestService();
+#endif
+
+        // these are special unitialized flags
+        auto &newQuest = entries.emplace_back();
+
+#if 0
+        newQuest.Id = aformId;
+        newQuest.Flags = -1;
+        newQuest.CurrentStage = 0;
+#endif
+
+        return reinterpret_cast<Script::Quest&>(newQuest);
     }
 
     bool Player::RemoveQuest(uint16_t aformId)
     {
         auto& component = m_pWorld->get<QuestLogComponent>(m_entity);
+        auto& service = m_pWorld->GetQuestService();
+
 
         return false;
+    }
+
+    const Vector<Quest>& Player::GetQuests() const
+    {
+        auto& component = m_pWorld->get<QuestLogComponent>(m_entity);
+        return reinterpret_cast<Vector<Script::Quest>&>(component.QuestContent.Entries);
     }
 }

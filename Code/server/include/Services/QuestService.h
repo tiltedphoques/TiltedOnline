@@ -13,6 +13,7 @@ public:
 
 private:
     void HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& aChanges) noexcept;
+    void StartQuest(uint16_t id);
 
     entt::scoped_connection m_questUpdateConnection;
     entt::scoped_connection m_updateConnection;

@@ -2,20 +2,30 @@
 
 #include <World.h>
 #include <Games/Skyrim/Events/EventDispatcher.h>
+#include <Games/Events.h>
 
 struct ImguiService;
 struct QuestInitHandler;
 struct QuestStageHandler;
 struct QuestStartStopHandler;
 
-class QuestService final
+struct TESQuest;
+
+class QuestService final : public 
+    BSTEventSink<TESQuestStartStopEvent>, 
+    BSTEventSink<TESQuestStageEvent>,
+    BSTEventSink<TESQuestStageItemDoneEvent>
 {
 public:
     QuestService(World&, entt::dispatcher&, ImguiService&);
     ~QuestService();
 
+    static bool IsNonSyncableQuest(TESQuest* apQuest);
 private:
-    friend struct QuestStageHandler;
+    friend struct QuestEventHandler;
+
+    BSTEventResult OnEvent(const TESQuestStartStopEvent*, const EventDispatcher<TESQuestStartStopEvent>*) override;
+    BSTEventResult OnEvent(const TESQuestStageEvent*, const EventDispatcher<TESQuestStageEvent>*) override;
 
     void OnConnected(const ConnectedEvent&) noexcept;
     void OnDisconnected(const DisconnectedEvent&) noexcept;
@@ -25,9 +35,6 @@ private:
     entt::scoped_connection m_leftConnection;
     entt::scoped_connection m_drawConnection;
 
-    std::unique_ptr<QuestStageHandler> m_pQuestStageListener;
-    std::unique_ptr<QuestStartStopHandler> m_pQuestStopStartListener;
-
-    uint16_t m_questCount = 0;
+    uint32_t m_questCount = 0;
     World& m_world;
 };

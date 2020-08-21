@@ -4,6 +4,7 @@
 
 #include <Scripts/Npc.h>
 #include <Scripts/Player.h>
+#include <Scripts/Quest.h>
 
 #include <Events/UpdateEvent.h>
 
@@ -97,11 +98,6 @@ FullObjects ScriptService::GenerateFull() noexcept
     return objects;
 }
 
-std::tuple<bool, String> ScriptService::HandlePlayerConnect(const Script::Player& aPlayer) noexcept
-{
-    return CallCancelableEvent("onPlayerConnect", aPlayer);
-}
-
 std::tuple<bool, String> ScriptService::HandlePlayerEnterWorld(const Script::Player& aPlayer) noexcept
 {
     return CallCancelableEvent("onPlayerEnterWorld", aPlayer);
@@ -110,6 +106,11 @@ std::tuple<bool, String> ScriptService::HandlePlayerEnterWorld(const Script::Pla
 std::tuple<bool, String> ScriptService::HandleMove(const Script::Npc& aNpc) noexcept
 {
     return CallCancelableEvent("onCharacterMove", aNpc);
+}
+
+std::tuple<bool, String> ScriptService::HandlePlayerJoin(const Script::Player& aPlayer) noexcept
+{
+    return CallCancelableEvent("onPlayerJoin", aPlayer);
 }
 
 void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::DisconnectReason aReason) noexcept
@@ -128,7 +129,7 @@ void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::Disco
         reason = "Banned";
         break;
     case Server::DisconnectReason::BadConnection:
-        reason = "Bad Connection";
+        reason = "Connection lost";
         break;
     case Server::DisconnectReason::TimedOut:
         reason = "Timed out";
@@ -140,6 +141,11 @@ void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::Disco
     }
 
     CallEvent("onPlayerQuit", aConnectionId, reason);
+}
+
+void ScriptService::HandleQuestStart(ConnectionId_t aConnectionId) noexcept
+{
+    CallEvent("onQuestStart", aConnectionId);
 }
 
 void ScriptService::RegisterExtensions(ScriptContext& aContext)
@@ -194,10 +200,15 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["discordid"] = sol::readonly_property(&Player::GetDiscordId);
     playerType["AddComponent"] = &Player::AddComponent;
 
-    //TBD
+    // WIP; crashing
+    playerType["GetQuests"] = &Player::GetQuests;
     playerType["AddQuest"] = &Player::AddQuest;
     playerType["RemoveQuest"] = &Player::RemoveQuest;
-    //playerType["Getquests"] = ;
+
+    auto questType = aContext.new_usertype<Script::Quest>("Quest", sol::no_constructor);
+    questType["id"] = sol::readonly_property(&Script::Quest::GetId);
+    questType["GetStage"] = &Script::Quest::GetStage;
+    questType["GetStage"] = &Script::Quest::SetStage;
 
     auto worldType = aContext.new_usertype<World>("World", sol::no_constructor);
     worldType["get"] = [this]() { return &m_world; };

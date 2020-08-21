@@ -4,6 +4,8 @@
 
 namespace Script
 {
+    struct Quest;
+
     struct Player : EntityHandle
     {
         Player(entt::entity aEntity, World& aWorld);
@@ -25,7 +27,10 @@ namespace Script
 
         bool AddComponent(sol::object aObject) const override;
 
-        bool AddQuest(uint16_t aformId);
+        const Quest& AddQuest(String& aModName, uint16_t aformId);
+
         bool RemoveQuest(uint16_t aformId);
+
+        const Vector<Quest>& GetQuests() const;
     };
 }

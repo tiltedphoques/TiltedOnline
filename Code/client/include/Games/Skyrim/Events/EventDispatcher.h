@@ -185,15 +185,22 @@ struct TESQuestInitEvent
 
 struct TESQuestStageEvent
 {
-    uint64_t pad0;
+    void* callback;
     uint32_t formId;
-    uint16_t stage;
-    uint16_t pad14;
+    uint16_t stageId;
+    bool bUnk;
 };
 
 struct TESQuestStartStopEvent
 {
     uint32_t formId;
+};
+
+struct TESQuestStageItemDoneEvent
+{
+    uint32_t formId;
+    uint16_t stageId;
+    bool unk;
 };
 
 struct TESResetEvent
@@ -326,7 +333,7 @@ struct EventDispatcherManager
     EventDispatcher<TESPerkEntryRunEvent> perkEntryRunEvent;
     EventDispatcher<TESQuestInitEvent> questInitEvent; //9F8
     EventDispatcher<TESQuestStageEvent> questStageEvent;
-    EventDispatcher<UnknownEvent> unkx; 
+    EventDispatcher<TESQuestStageItemDoneEvent> questStageItemDoneEvent; // AA8, validated StageItemFinishedCallback::TriggerItemDoneEvent
     EventDispatcher<TESQuestStartStopEvent> questStartStopEvent; // TESResolveNPCTemplatesEvent
     EventDispatcher<TESResetEvent> resetEvent; //validated 0xB58
     EventDispatcher<TESResolveNPCTemplatesEvent> resolveNPCTemplatesEvent;
@@ -351,7 +358,7 @@ struct EventDispatcherManager
     EventDispatcher<TESFastTravelEndEvent> fastTravelEndEvent;
 };
 
-//constexpr auto x = offsetof(EventDispatcherManager, trackedStatsEvent);
+//constexpr auto x = offsetof(EventDispatcherManager, unkx);
 
 static_assert(sizeof(EventDispatcherManager) == 4752);
 static_assert(offsetof(EventDispatcherManager, activateEvent) == 88);

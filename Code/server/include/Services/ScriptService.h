@@ -29,11 +29,12 @@ struct ScriptService : ScriptStore
     Objects GenerateDifferential() noexcept;
     FullObjects GenerateFull() noexcept;
 
-    std::tuple<bool, String> HandlePlayerConnect(const Script::Player& aPlayer) noexcept;
+    std::tuple<bool, String> HandlePlayerJoin(const Script::Player& aPlayer) noexcept;
     std::tuple<bool, String> HandlePlayerEnterWorld(const Script::Player& aPlayer) noexcept;
     std::tuple<bool, String> HandleMove(const Script::Npc& aNpc) noexcept;
 
     void HandlePlayerQuit(ConnectionId_t aConnectionId, Server::DisconnectReason aReason) noexcept;
+    void HandleQuestStart(ConnectionId_t) noexcept;
 
 protected:
 

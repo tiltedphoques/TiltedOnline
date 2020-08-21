@@ -3,7 +3,7 @@
 #include "Message.h"
 #include <Buffer.hpp>
 #include <Stl.hpp>
-#include <Structs/Quest.h>
+#include <Structs/GameId.h>
 
 struct RequestQuestUpdate final : ClientMessage
 {
@@ -18,8 +18,21 @@ struct RequestQuestUpdate final : ClientMessage
 
     bool operator==(const RequestQuestUpdate& acRhs) const noexcept
     {
-        return Change == acRhs.Change && GetOpcode() == acRhs.GetOpcode();
+        return Id == acRhs.Id && 
+            Stage == acRhs.Stage && 
+            Status == acRhs.Stage &&
+            GetOpcode() == acRhs.GetOpcode();
     }
 
-    Quest Change;
+    enum StatusCode
+    {
+        StageUpdate,
+        Stopped,
+        Started
+    };
+
+    GameId Id;
+    uint16_t Stage;
+    uint8_t Status;
+    //bool Active;
 };

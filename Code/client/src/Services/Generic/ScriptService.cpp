@@ -31,10 +31,10 @@ struct GameEventHandler final : public BSTEventSink<BGSEventProcessedEvent>
     {
     }
 
-    Result OnEvent(const BGSEventProcessedEvent* apEvent, const EventDispatcher<BGSEventProcessedEvent>*) override
+    BSTEventResult OnEvent(const BGSEventProcessedEvent* apEvent, const EventDispatcher<BGSEventProcessedEvent>*) override
     {
    
-        return Result::kOk;
+        return BSTEventResult::kOk;
     }
 
     static bool s_mRegistered;
