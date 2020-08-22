@@ -4,11 +4,20 @@
 
 void NotifyQuestUpdate::SerializeRaw(TiltedPhoques::Buffer::Writer& aWriter) const noexcept
 {
-    //Change.Serialize(aWriter);
+    Id.Serialize(aWriter);
+    aWriter.WriteBits(Stage, 16);
+    aWriter.WriteBits(Status, 8);
 }
 
 void NotifyQuestUpdate::DeserializeRaw(TiltedPhoques::Buffer::Reader& aReader) noexcept
 {
     ServerMessage::DeserializeRaw(aReader);
-    //Change.Deserialize(aReader);
+    Id.Deserialize(aReader);
+
+    uint64_t tmp;
+    aReader.ReadBits(tmp, 16);
+    Stage = tmp & 0xFFFF;
+
+    aReader.ReadBits(tmp, 8);
+    Status = tmp & 0xFF;
 }

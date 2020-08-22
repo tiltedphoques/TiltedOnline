@@ -8,6 +8,9 @@
 #include <Messages/RequestQuestUpdate.h>
 #include <Messages/NotifyQuestUpdate.h>
 
+#include <Scripts/Player.h>
+#include <Scripts/Quest.h>
+
 QuestService::QuestService(World& aWorld, entt::dispatcher& aDispatcher) : m_world(aWorld)
 {
     m_questUpdateConnection =
@@ -17,24 +20,26 @@ QuestService::QuestService(World& aWorld, entt::dispatcher& aDispatcher) : m_wor
 void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acMessage) noexcept
 {
     auto view = m_world.view<PlayerComponent, QuestLogComponent>();
-    auto viewIt = std::find_if(view.begin(), view.end(),
-                           [view, connectionId = acMessage.ConnectionId](auto entity) {
+    const auto it = std::find_if(view.begin(), view.end(),
+                           [view, connectionId = acMessage.ConnectionId](auto entity) 
+    {
         return view.get<PlayerComponent>(entity).ConnectionId == connectionId;
     });
 
     const auto& message = acMessage.Packet;
 
-    if (viewIt == view.end())
+    if (it == view.end())
     {
         spdlog::error("Quest {:x} is not associated with connection {:x}", message.Id.BaseId,
                       acMessage.ConnectionId);
         return;
     }
 
-    auto& questComponent = view.get<QuestLogComponent>(*viewIt);
+    auto& questComponent = view.get<QuestLogComponent>(*it);
     auto& entries = questComponent.QuestContent.Entries;
 
-    auto questIt = std::find_if(entries.begin(), entries.end(), [&message](const auto& e) { 
+    auto questIt = std::find_if(entries.begin(), entries.end(), [&message](const auto& e) 
+    { 
         return e.Id == message.Id;
     });
 
@@ -52,10 +57,13 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
 
             if (message.Status == RequestQuestUpdate::Started)
             {
-                spdlog::info("Started Quest: {:x}", message.Id.BaseId);
+                spdlog::info("Started Quest: {:x}:{}", message.Id.BaseId, message.Id.ModId);
 
                 // we only trigger that on remote quest start
-                m_world.GetScriptService().HandleQuestStart(acMessage.ConnectionId);
+                const Script::Player scriptPlayer(*it, m_world);
+                const Script::Quest scriptQuest(message.Id.BaseId, message.Stage);
+
+                m_world.GetScriptService().HandleQuestStart(scriptPlayer, scriptQuest);
             }
         } 
         else 
@@ -65,27 +73,41 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
             auto& record = *questIt;
             record.Id = message.Id;
             record.Stage = message.Stage;
+
+            const Script::Player scriptPlayer(*it, m_world);
+            const Script::Quest scriptQuest(message.Id.BaseId, message.Stage);
+
+            m_world.GetScriptService().HandleQuestStage(scriptPlayer, scriptQuest);
         }
     }
     else if (message.Status == RequestQuestUpdate::Stopped)
     {
         spdlog::info("Stopped quest: {:x}", message.Id.BaseId);
         entries.erase(questIt);
+
+        const Script::Player player(*it, m_world);
+        m_world.GetScriptService().HandleQuestStop(player, message.Id.BaseId);
     }
 }
   
-// require mod id
-void QuestService::StartQuest(uint16_t id)
+// script wrapper
+bool QuestService::StartStopQuest(entt::entity aRecipient, GameId aGameId, bool aStop) noexcept
 {
     NotifyQuestUpdate questMsg;
+    questMsg.Status = aStop ? NotifyQuestUpdate::Stopped : NotifyQuestUpdate::Started;
+    questMsg.Id = aGameId;
+    questMsg.Stage = 0;
 
-#if 0
-    auto& quest = questMsg.Change;
-    quest.Flags = 256;
-    //quest.Id = id;
-    quest.CurrentStage = 0;
+    auto view = m_world.view<PlayerComponent>();
+    for (auto player : view)
+    {
+        if (player == aRecipient)
+        {
+            auto& component = view.get<PlayerComponent>(aRecipient);
+            GameServer::Get()->Send(component.ConnectionId, questMsg);
+            return true;
+        }
+    }
 
-    // massive hack
-    GameServer::Get()->SendToLoaded(questMsg);
-    #endif
+    return false;
 }

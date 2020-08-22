@@ -250,12 +250,14 @@ void GameServer::HandleAuthenticationRequest(const ConnectionId_t aConnectionId,
         {
             oss << standardMod.Filename << ", ";
 
-            playerComponent.Mods.push_back(standardMod.Filename);
             const auto id = mods.AddStandard(standardMod.Filename);
 
             Mods::Entry entry;
             entry.Filename = standardMod.Filename;
             entry.Id = static_cast<uint16_t>(id);
+
+            playerComponent.Mods.push_back(standardMod.Filename);
+            playerComponent.ModIds.push_back(entry.Id);
 
             serverMods.StandardMods.push_back(entry);
         }
@@ -265,12 +267,15 @@ void GameServer::HandleAuthenticationRequest(const ConnectionId_t aConnectionId,
         {
             oss << liteMod.Filename << ", ";
 
-            playerComponent.Mods.push_back(liteMod.Filename);
             const auto id = mods.AddLite(liteMod.Filename);
 
             Mods::Entry entry;
             entry.Filename = liteMod.Filename;
             entry.Id = static_cast<uint16_t>(id);
+
+            playerComponent.Mods.push_back(liteMod.Filename);
+            playerComponent.ModIds.push_back(entry.Id);
+
 
             serverMods.LiteMods.push_back(entry);
         }

@@ -15,6 +15,7 @@ namespace Script
 {
     struct Npc;
     struct Player;
+    struct Quest;
 }
 
 struct ScriptService : ScriptStore
@@ -34,7 +35,10 @@ struct ScriptService : ScriptStore
     std::tuple<bool, String> HandleMove(const Script::Npc& aNpc) noexcept;
 
     void HandlePlayerQuit(ConnectionId_t aConnectionId, Server::DisconnectReason aReason) noexcept;
-    void HandleQuestStart(ConnectionId_t) noexcept;
+
+    void HandleQuestStart(const Script::Player& aPlayer, const Script::Quest& aQuest) noexcept;
+    void HandleQuestStage(const Script::Player& aPlayer, const Script::Quest& aQuest) noexcept;
+    void HandleQuestStop(const Script::Player& aPlayer, uint32_t aformId) noexcept;
 
 protected:
 

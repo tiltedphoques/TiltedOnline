@@ -2,6 +2,8 @@
 
 #include <Scripts/EntityHandle.h>
 
+struct QuestLogComponent;
+
 namespace Script
 {
     struct Quest;
@@ -26,11 +28,12 @@ namespace Script
         }
 
         bool AddComponent(sol::object aObject) const override;
+        bool HasMod(const std::string aModName) const noexcept;
 
-        const Quest& AddQuest(String& aModName, uint16_t aformId);
+        bool RemoveQuest(uint32_t aformId);
+        sol::optional<Quest> AddQuest(const std::string aModName, uint32_t aformId);
+        sol::optional<Vector<Quest>> GetQuests() const noexcept;
 
-        bool RemoveQuest(uint16_t aformId);
-
-        const Vector<Quest>& GetQuests() const;
+        inline entt::entity GetEntityHandle() const { return m_entity; }
     };
 }

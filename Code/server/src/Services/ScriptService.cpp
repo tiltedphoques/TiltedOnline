@@ -143,9 +143,19 @@ void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::Disco
     CallEvent("onPlayerQuit", aConnectionId, reason);
 }
 
-void ScriptService::HandleQuestStart(ConnectionId_t aConnectionId) noexcept
+void ScriptService::HandleQuestStart(const Script::Player& aPlayer, const Script::Quest& aQuest) noexcept
 {
-    CallEvent("onQuestStart", aConnectionId);
+    CallEvent("onQuestStart", aPlayer, aQuest);
+}
+
+void ScriptService::HandleQuestStage(const Script::Player& aPlayer, const Script::Quest& aQuest) noexcept
+{
+    CallEvent("onQuestStage", aPlayer, aQuest);
+}
+
+void ScriptService::HandleQuestStop(const Script::Player& aPlayer, uint32_t aformId) noexcept
+{
+    CallEvent("onQuestStop", aPlayer, aformId);
 }
 
 void ScriptService::RegisterExtensions(ScriptContext& aContext)
@@ -185,6 +195,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
 {
     using Script::Npc;
     using Script::Player;
+    using Script::Quest;
 
     auto npcType = aContext.new_usertype<Npc>("Npc", sol::no_constructor);
     npcType["id"] = sol::readonly_property(&Npc::GetId);
@@ -199,16 +210,14 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["ip"] = sol::readonly_property(&Player::GetIp);
     playerType["discordid"] = sol::readonly_property(&Player::GetDiscordId);
     playerType["AddComponent"] = &Player::AddComponent;
-
-    // WIP; crashing
-    playerType["GetQuests"] = &Player::GetQuests;
     playerType["AddQuest"] = &Player::AddQuest;
-    playerType["RemoveQuest"] = &Player::RemoveQuest;
+    playerType["GetQuests"] = &Player::GetQuests; //W
+    playerType["RemoveQuest"] = &Player::RemoveQuest; 
 
-    auto questType = aContext.new_usertype<Script::Quest>("Quest", sol::no_constructor);
-    questType["id"] = sol::readonly_property(&Script::Quest::GetId);
-    questType["GetStage"] = &Script::Quest::GetStage;
-    questType["GetStage"] = &Script::Quest::SetStage;
+    auto questType = aContext.new_usertype<Quest>("Quest", sol::no_constructor);
+    questType["id"] = sol::readonly_property(&Quest::GetId);
+    questType["GetStage"] = &Quest::GetStage;
+    //questType["GetStage"] = &Quest::SetStage;
 
     auto worldType = aContext.new_usertype<World>("World", sol::no_constructor);
     worldType["get"] = [this]() { return &m_world; };

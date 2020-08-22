@@ -18,6 +18,7 @@ struct ModsComponent
     const auto& GetStandardMods() const noexcept { return m_standardMods; }
     const auto& GetLiteMods() const noexcept { return m_liteMods; }
 
+    using TModList = Map<String, Entry>; 
 private:
 
     uint32_t m_seed = 0;

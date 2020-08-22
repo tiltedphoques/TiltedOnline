@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Events/PacketEvent.h>
+#include <Structs/GameId.h>
 
 struct World;
 struct UpdateEvent;
@@ -11,9 +12,9 @@ class QuestService
 public:
     QuestService(World& aWorld, entt::dispatcher& aDispatcher);
 
+    bool StartStopQuest(entt::entity aRecipient, GameId aGameId, bool aStop) noexcept;
 private:
     void HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& aChanges) noexcept;
-    void StartQuest(uint16_t id);
 
     entt::scoped_connection m_questUpdateConnection;
     entt::scoped_connection m_updateConnection;

@@ -342,6 +342,7 @@ void CharacterService::CreateCharacter(const PacketEvent<AssignCharacterRequest>
 
         auto& playerComponent = playerView.get<PlayerComponent>(cPlayer);
         playerComponent.Character = cEntity;
+        playerComponent.PlayerHandle = cPlayer;
 
         auto& questLogComponent = m_world.emplace<QuestLogComponent>(cPlayer);
         questLogComponent.QuestContent = std::move(message.QuestContent);

@@ -2,6 +2,7 @@
 
 #include "Message.h"
 #include <Buffer.hpp>
+#include <Structs/GameId.h>
 
 using TiltedPhoques::Map;
 
@@ -14,11 +15,20 @@ struct NotifyQuestUpdate final : ServerMessage
     void SerializeRaw(TiltedPhoques::Buffer::Writer& aWriter) const noexcept override;
     void DeserializeRaw(TiltedPhoques::Buffer::Reader& aReader) noexcept override;
 
-#if 0
     bool operator==(const NotifyQuestUpdate& acRhs) const noexcept
     {
-        //return Change == acRhs.Change && GetOpcode() == acRhs.GetOpcode();
+        return Id == acRhs.Id && Status == acRhs.Status && Stage == acRhs.Stage && GetOpcode() == acRhs.GetOpcode();
+
     }
-#endif
-    //Quest Change;
+
+    enum StatusCode : uint8_t
+    {
+        StageUpdate,
+        Started,
+        Stopped
+    };
+
+    GameId Id;
+    uint8_t Status; 
+    uint16_t Stage;
 };
