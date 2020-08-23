@@ -6,8 +6,9 @@ namespace Script
 {
     struct Quest
     {
-        explicit Quest(uint32_t aId, uint16_t aStage)
-            : m_id(aId), m_stage(aStage){}
+        explicit Quest(uint32_t aId, uint16_t aStage, World& aWorld) : 
+            m_id(aId), m_stage(aStage), m_pWorld(&aWorld)
+        {}
 
         [[nodiscard]] inline uint32_t GetId() const
         {
@@ -19,11 +20,12 @@ namespace Script
             return m_stage;
         }
 
-        void SetStage(uint16_t aNewStage, std::vector<Player> &aPlayers);
+        void SetStage(uint16_t aNewStage, std::vector<Player> aPlayers);
 
         //World *
 
     private:
+        World* m_pWorld = nullptr;
         uint32_t m_id = 0;
         uint16_t m_stage = 0;
     };

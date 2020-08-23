@@ -27,6 +27,7 @@
 #include <Messages/NotifyFactionsChanges.h>
 #include <Messages/ServerTimeSettings.h>
 #include <Messages/NotifyRemoveCharacter.h>
+#include <Messages/NotifyQuestUpdate.h>
 
 #define TRANSPORT_DISPATCH(packetName) \
 case k##packetName: \
@@ -106,6 +107,7 @@ void TransportService::OnConsume(const void* apData, uint32_t aSize)
     TRANSPORT_DISPATCH(NotifyInventoryChanges);
     TRANSPORT_DISPATCH(NotifyFactionsChanges);
     TRANSPORT_DISPATCH(NotifyRemoveCharacter);
+    TRANSPORT_DISPATCH(NotifyQuestUpdate);
 
     default:
         spdlog::error("Client message opcode {} from server has no handler", pMessage->GetOpcode());

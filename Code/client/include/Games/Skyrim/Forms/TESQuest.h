@@ -86,6 +86,11 @@ struct TESQuest : BGSStoryManagerTreeForm
 
     bool Kill();
     State getState();
+
+    bool UnkSetRunning(bool &succeded, bool force);
+
+    bool SetStage(uint16_t stage);
+    void SetStopped();
 };
 
 static_assert(sizeof(TESQuest) == 616);

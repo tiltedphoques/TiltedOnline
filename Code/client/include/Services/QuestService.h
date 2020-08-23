@@ -8,6 +8,7 @@ struct ImguiService;
 struct QuestInitHandler;
 struct QuestStageHandler;
 struct QuestStartStopHandler;
+struct NotifyQuestUpdate;
 
 struct TESQuest;
 
@@ -21,6 +22,8 @@ public:
     ~QuestService();
 
     static bool IsNonSyncableQuest(TESQuest* apQuest);
+    static TESQuest* SearchQuestRegistry(uint32_t aFormid);
+
 private:
     friend struct QuestEventHandler;
 
@@ -30,10 +33,15 @@ private:
     void OnConnected(const ConnectedEvent&) noexcept;
     void OnDisconnected(const DisconnectedEvent&) noexcept;
     void OnDraw() noexcept;
+    void OnQuestUpdate(const NotifyQuestUpdate&) noexcept;
+
+    TESQuest* SetQuestStage(uint32_t aformId, uint16_t aStage);
+    bool StopQuest(uint32_t aformId);
 
     entt::scoped_connection m_joinedConnection;
     entt::scoped_connection m_leftConnection;
     entt::scoped_connection m_drawConnection;
+    entt::scoped_connection m_questUpdateConnection;
 
     uint32_t m_questCount = 0;
     World& m_world;

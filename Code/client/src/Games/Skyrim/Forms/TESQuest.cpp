@@ -71,6 +71,28 @@ bool TESQuest::Kill()
     return false;
 }
 
+bool TESQuest::UnkSetRunning(bool &success, bool force)
+{
+    using TSetRunning = bool(TESQuest*, bool*, bool);
+    POINTER_SKYRIMSE(TSetRunning, SetRunning, 0x140370910 - 0x140000000);
+
+    return SetRunning(this, &success, force);
+}
+
+bool TESQuest::SetStage(uint16_t newStage)
+{
+    using TSetStage = bool(TESQuest*, uint16_t);
+    POINTER_SKYRIMSE(TSetStage, SetStage, 0x140370A30 - 0x140000000);
+
+    return SetStage(this, newStage);
+}
+
+void TESQuest::SetStopped()
+{
+    flags &= 0xFFFE;
+    MarkChanged(2);
+}
+
 static TiltedPhoques::Initializer s_questInitHooks([]() {
     // kill quest init in cold blood
     //TiltedPhoques::Write<uint8_t>(0x140370910 - 0x140000000, 0xC3);

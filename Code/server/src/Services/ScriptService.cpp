@@ -211,13 +211,13 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["discordid"] = sol::readonly_property(&Player::GetDiscordId);
     playerType["AddComponent"] = &Player::AddComponent;
     playerType["AddQuest"] = &Player::AddQuest;
-    playerType["GetQuests"] = &Player::GetQuests; //W
+    playerType["GetQuests"] = &Player::GetQuests;
     playerType["RemoveQuest"] = &Player::RemoveQuest; 
 
     auto questType = aContext.new_usertype<Quest>("Quest", sol::no_constructor);
     questType["id"] = sol::readonly_property(&Quest::GetId);
     questType["GetStage"] = &Quest::GetStage;
-    //questType["GetStage"] = &Quest::SetStage;
+    //questType["SetStage"] = &Quest::SetStage;
 
     auto worldType = aContext.new_usertype<World>("World", sol::no_constructor);
     worldType["get"] = [this]() { return &m_world; };

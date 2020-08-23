@@ -32,14 +32,12 @@ namespace Script
     const Vector3<float>& Player::GetPosition() const
     {
         auto& movementComponent = m_pWorld->get<MovementComponent>(m_entity);
-
         return movementComponent.Position;
     }
 
     const Vector3<float>& Player::GetRotation() const
     {
         auto& movementComponent = m_pWorld->get<MovementComponent>(m_entity);
-
         return movementComponent.Rotation;
     }
 
@@ -135,6 +133,9 @@ namespace Script
         if (index < 0 || index > playerMods.size())
             return std::nullopt;
 
+        // if we not set a baseid we should set it to temporary.. :)
+        // that way the system knows...
+
         GameId questId;
         questId.BaseId = aformId & 0xFFFFFF;
         questId.ModId = static_cast<uint32_t>(playerComponent.ModIds[index]);
@@ -150,7 +151,7 @@ namespace Script
         newQuest.Id = questId;
         newQuest.Stage = 0;
 
-        return Quest(aformId, 0);
+        return Quest(aformId, 0, *m_pWorld);
     }
 
     sol::optional<Vector<Quest>> Player::GetQuests() const noexcept
@@ -164,7 +165,7 @@ namespace Script
 
             for (const auto& it : entries)
             {
-                scriptQuests.push_back(Quest(it.Id.BaseId, it.Stage));
+                scriptQuests.push_back(Quest(it.Id.BaseId, it.Stage, *m_pWorld));
             }
 
             return std::move(scriptQuests);

@@ -61,7 +61,7 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
 
                 // we only trigger that on remote quest start
                 const Script::Player scriptPlayer(*it, m_world);
-                const Script::Quest scriptQuest(message.Id.BaseId, message.Stage);
+                const Script::Quest scriptQuest(message.Id.BaseId, message.Stage, m_world);
 
                 m_world.GetScriptService().HandleQuestStart(scriptPlayer, scriptQuest);
             }
@@ -75,7 +75,7 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
             record.Stage = message.Stage;
 
             const Script::Player scriptPlayer(*it, m_world);
-            const Script::Quest scriptQuest(message.Id.BaseId, message.Stage);
+            const Script::Quest scriptQuest(message.Id.BaseId, message.Stage, m_world);
 
             m_world.GetScriptService().HandleQuestStage(scriptPlayer, scriptQuest);
         }
@@ -98,16 +98,8 @@ bool QuestService::StartStopQuest(entt::entity aRecipient, GameId aGameId, bool 
     questMsg.Id = aGameId;
     questMsg.Stage = 0;
 
-    auto view = m_world.view<PlayerComponent>();
-    for (auto player : view)
-    {
-        if (player == aRecipient)
-        {
-            auto& component = view.get<PlayerComponent>(aRecipient);
-            GameServer::Get()->Send(component.ConnectionId, questMsg);
-            return true;
-        }
-    }
+    auto& playerComponent = m_world.get<PlayerComponent>(aRecipient);
+    GameServer::Get()->Send(playerComponent.ConnectionId, questMsg);
 
-    return false;
+    return true;
 }
