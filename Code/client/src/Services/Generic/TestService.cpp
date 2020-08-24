@@ -165,62 +165,6 @@ void TestService::OnDraw() noexcept
     }
 
     ImGui::End();
-
-#if 0
-    auto* pFormMgr = FormManager::Get();
-    if (pFormMgr) {
-        ImGui::Begin("Quest Log");
-        for (auto* it : pFormMgr->quests)
-        {
-            if (it->IsEnabled())
-                ImGui::Button(it->idName.AsAscii());
-        }
-        ImGui::End();
-
-        ImGui::Begin("Active Quests");
-        for (auto* it : pFormMgr->quests)
-        {
-            if (it->IsActive())
-            {
-                ImGui::Text("%s | %p", it->idName.AsAscii(), (void*)it);
-            }
-        }
-        ImGui::End();
-
-        ImGui::Begin("Quest Manager");
-        if (ImGui::Button("Disable all Quests"))
-        {
-            for (auto* it : pFormMgr->quests)
-                it->Disable();
-        }
-
-        if (ImGui::Button("Set all completed"))
-        {
-            for (auto* it : pFormMgr->quests)
-                it->SetCompleted(true);
-        }
-
-        if (ImGui::Button("Set all inactive"))
-        {
-            for (auto* it : pFormMgr->quests)
-                it->SetActive(false);
-        }
-
-        if (ImGui::Button("Kill all"))
-        {
-            for (auto* it : pFormMgr->quests)
-                it->Kill();
-        }
-        if (ImGui::Button("Kill active"))
-        {
-            for (auto* it : pFormMgr->quests)
-                if (it->IsActive())
-                    it->Kill();
-        }
-
-        ImGui::End();
-    }
-#endif
 }
 
 

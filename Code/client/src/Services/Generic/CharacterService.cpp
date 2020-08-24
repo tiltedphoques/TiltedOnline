@@ -11,6 +11,7 @@
 #include <Games/Skyrim/ExtraData/ExtraLeveledCreature.h>
 
 #include <Games/Fallout4/Forms/TESNPC.h>
+#include <Games/Fallout4/Forms/TESQuest.h>
 #include <Games/Fallout4/Misc/ProcessManager.h>
 #include <Games/Fallout4/Misc/MiddleProcess.h>
 #include <Games/Fallout4/ExtraData/ExtraLeveledCreature.h>
@@ -455,24 +456,19 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
     if (isPlayer)
     {
         auto& questLog = message.QuestContent.Entries;
-        auto& questTargets = PlayerCharacter::Get()->questTargets;
         auto& modSystem = m_world.GetModSystem();
 
-        // we add 2 to accomdate for a 16 byte padding during iteration
-        int j = 0;
-        for (auto i = 0; i < (questTargets.length * 2); i += 2)
+        for (auto& objective : PlayerCharacter::Get()->objectives)
         {
-            auto* pQuest = questTargets[i]->quest;
+            auto* pQuest = objective.instance->quest;
 
             GameId Id;
-            if (!QuestService::IsNonSyncableQuest(pQuest) && modSystem.GetServerModId(pQuest->formID, Id)) 
+            if (!QuestService::IsNonSyncableQuest(pQuest) && modSystem.GetServerModId(pQuest->formID, Id))
             {
                 auto& entry = questLog.emplace_back();
                 entry.Stage = pQuest->currentStage;
                 entry.Id = Id;
             }
-
-            j++;
         }
     }
 

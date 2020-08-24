@@ -57,5 +57,4 @@ private:
 
     entt::scoped_connection m_connectedConnection;
     entt::scoped_connection m_disconnectedConnection;
-    std::unique_ptr<GameEventHandler> m_pEventHandler;
 };

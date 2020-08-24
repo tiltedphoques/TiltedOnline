@@ -20,31 +20,6 @@
 
 #include <imgui.h>
 
-// this event exists, but seems to be never triggered :(
-// WIP
-struct GameEventHandler final : public BSTEventSink<BGSEventProcessedEvent>
-{
-    GameEventHandler(ScriptService& aQuestSv) : m_parent(aQuestSv)
-    {}
-
-    ~GameEventHandler() override
-    {
-    }
-
-    BSTEventResult OnEvent(const BGSEventProcessedEvent* apEvent, const EventDispatcher<BGSEventProcessedEvent>*) override
-    {
-   
-        return BSTEventResult::kOk;
-    }
-
-    static bool s_mRegistered;
-
-private:
-    ScriptService& m_parent;
-};
-
-bool GameEventHandler::s_mRegistered = false;
-
 ScriptService::ScriptService(World& aWorld, entt::dispatcher& aDispatcher, ImguiService& aImguiService, TransportService& aTransportService) noexcept
     : ScriptStore(false)
     , m_dispatcher(aDispatcher)
@@ -60,8 +35,6 @@ ScriptService::ScriptService(World& aWorld, entt::dispatcher& aDispatcher, Imgui
     m_disconnectedConnection = m_dispatcher.sink<DisconnectedEvent>().connect<&ScriptService::OnDisconnected>(this);
 
     m_drawImGuiConnection = aImguiService.OnDraw.connect<&ScriptService::OnDraw>(this);
-
-    m_pEventHandler = std::make_unique<GameEventHandler>(*this);
 }
 
 ScriptService::~ScriptService() noexcept

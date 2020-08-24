@@ -37,6 +37,11 @@ struct GameArray
     {
         return Iterator(&data[length]);
     }
+
+    inline bool empty() const noexcept
+    {
+        return length == 0;
+    }
 };
 
 template <class T>

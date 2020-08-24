@@ -19,13 +19,14 @@ class QuestService final : public
 {
 public:
     QuestService(World&, entt::dispatcher&, ImguiService&);
-    ~QuestService();
+    ~QuestService() = default;
 
     static bool IsNonSyncableQuest(TESQuest* apQuest);
-    static TESQuest* SearchQuestRegistry(uint32_t aFormid);
 
 private:
     friend struct QuestEventHandler;
+
+    void DebugDumpQuests();
 
     BSTEventResult OnEvent(const TESQuestStartStopEvent*, const EventDispatcher<TESQuestStartStopEvent>*) override;
     BSTEventResult OnEvent(const TESQuestStageEvent*, const EventDispatcher<TESQuestStageEvent>*) override;
@@ -43,6 +44,5 @@ private:
     entt::scoped_connection m_drawConnection;
     entt::scoped_connection m_questUpdateConnection;
 
-    uint32_t m_questCount = 0;
     World& m_world;
 };

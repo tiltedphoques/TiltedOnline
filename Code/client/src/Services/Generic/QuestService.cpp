@@ -6,14 +6,30 @@
 #include <Services/QuestService.h>
 #include <Services/ImguiService.h>
 
+#include <Games/Misc/QuestCallbackManager.h>
 #include <Games/Skyrim/PlayerCharacter.h>
 #include <Games/Skyrim/Forms/TESQuest.h>
 #include <Games/Skyrim/FormManager.h>
-#include <Games/Skyrim/Misc/QuestCallbackManager.h>
+#include <Games/Fallout4/PlayerCharacter.h>
+#include <Games/Fallout4/Forms/TESQuest.h>
+#include <Games/Fallout4/FormManager.h>
+#include <Games/Fallout4/Events/EventDispatcher.h>
+
 #include <imgui.h>
 
 #include <Messages/RequestQuestUpdate.h>
 #include <Messages/NotifyQuestUpdate.h>
+
+static TESQuest* FindQuestByNameId(const String &name)
+{
+    auto& questRegistry = FormManager::Get()->quests;
+    auto it = std::find_if(questRegistry.begin(), questRegistry.end(), [name](auto* it) 
+    { 
+         return std::strcmp(it->idName.AsAscii(), name.c_str()); 
+    });
+
+    return it != questRegistry.end() ? *it : nullptr;
+}
 
 QuestService::QuestService(World& aWorld, entt::dispatcher& aDispatcher, ImguiService& aImguiService) : m_world(aWorld)
 {
@@ -23,34 +39,30 @@ QuestService::QuestService(World& aWorld, entt::dispatcher& aDispatcher, ImguiSe
     m_questUpdateConnection = aDispatcher.sink<NotifyQuestUpdate>().connect<&QuestService::OnQuestUpdate>(this);
 }
 
-QuestService::~QuestService()
-{
-}
-
-//void __fastcall ToggleQuestActiveStatus(__int64 a1)
+//Idea: ToggleQuestActiveStatus(__int64 a1)
 
 void QuestService::OnConnected(const ConnectedEvent&) noexcept
 {
-    // About the Events:
+    // A note about the Gameevents:
     // TESQuestStageItemDoneEvent gets fired to late, we instead use TESQuestStageEvent, because it responds immediately.
     // TESQuestInitEvent can be instead managed by start stop quest management.
-
+#if TP_FALLOUT
+    GetEventDispatcher_TESQuestStartStopEvent()->RegisterSink(this);
+    GetEventDispatcher_TESQuestStageEvent()->RegisterSink(this);
+#else
     // bind game event listeners
     auto* pEventList = EventDispatcherManager::Get();
     pEventList->questStartStopEvent.RegisterSink(this);
     pEventList->questStageEvent.RegisterSink(this);
+#endif
 
     // deselect any active quests
     auto* pPlayer = PlayerCharacter::Get();
-    auto& questTargets = pPlayer->questTargets;
-
-    for (auto i = 0; i < (questTargets.length * 2); i += 2)
+    for (auto& objective : pPlayer->objectives)
     {
-        auto* pQuest = questTargets[i]->quest;
+        auto* pQuest = objective.instance->quest;
         pQuest->SetActive(false);
     }
-
-    m_questCount = questTargets.length;
 }
 
 void QuestService::OnQuestUpdate(const NotifyQuestUpdate& aUpdate) noexcept
@@ -83,12 +95,7 @@ void QuestService::OnQuestUpdate(const NotifyQuestUpdate& aUpdate) noexcept
 
 TESQuest* QuestService::SetQuestStage(uint32_t aFormId, uint16_t aStage)
 {
-    // first ask the quest journal for SPEEEEEEEEEEED reasons
-    TESQuest* pQuest = PlayerCharacter::Get()->GetQuest(aFormId);
-    if (!pQuest)
-        pQuest = SearchQuestRegistry(aFormId);
-    if (!pQuest)
-        return nullptr;
+    TESQuest* pQuest = static_cast<TESQuest*>(TESForm::GetById(aFormId));
 
     // force quest update
     pQuest->flags |= TESQuest::Enabled | TESQuest::Started;
@@ -103,12 +110,6 @@ TESQuest* QuestService::SetQuestStage(uint32_t aFormId, uint16_t aStage)
             pCallbackMgr->RegisterQuest(aFormId);
         else
         {
-            //pCallbackMgr->NotifyStage(aFormId, aStage);
-
-            // rollback the quest stage, dont ask me why this is done
-            // blame the game
-            //if (!pQuest->SetStage(aStage))
-            //    pCallbackMgr->ResetStage(aFormId, aStage);
             pQuest->SetStage(aStage);
             return pQuest;
         }
@@ -119,37 +120,24 @@ TESQuest* QuestService::SetQuestStage(uint32_t aFormId, uint16_t aStage)
 
 bool QuestService::StopQuest(uint32_t aformId)
 {
-    // first ask the quest journal for SPEEEEEEEEEEED reasons
-    TESQuest* pQuest = PlayerCharacter::Get()->GetQuest(aformId);
-    if (!pQuest)
-        pQuest = SearchQuestRegistry(aformId);
-    if (!pQuest)
-        return false;
-
+    auto* pQuest = static_cast<TESQuest*>(TESForm::GetById(aformId));
     pQuest->SetActive(false);
     pQuest->SetStopped();
+
     return true;
 }
 
 void QuestService::OnDisconnected(const DisconnectedEvent&) noexcept
 {
     // remove quest listener
+#if TP_FALLOUT
+    GetEventDispatcher_TESQuestStartStopEvent()->UnRegisterSink(this);
+    GetEventDispatcher_TESQuestStageEvent()->UnRegisterSink(this);
+#else
     auto* pEventList = EventDispatcherManager::Get();
     pEventList->questStageEvent.UnRegisterSink(this);
     pEventList->questStartStopEvent.UnRegisterSink(this);
-
-    m_questCount = PlayerCharacter::Get()->questTargets.length;
-}
-
-TESQuest* QuestService::SearchQuestRegistry(uint32_t aFormId)
-{
-    auto& questRegistry = FormManager::Get()->quests;
-    auto it = std::find_if(questRegistry.begin(), questRegistry.end(), [aFormId](TESQuest* it) 
-    { 
-        return it->formID == aFormId; 
-    });
-
-    return it != questRegistry.end() ? *it : nullptr;
+#endif
 }
 
 bool QuestService::IsNonSyncableQuest(TESQuest* apQuest)
@@ -162,6 +150,7 @@ bool QuestService::IsNonSyncableQuest(TESQuest* apQuest)
 
 BSTEventResult QuestService::OnEvent(const TESQuestStageEvent* apEvent, const EventDispatcher<TESQuestStageEvent>*)
 {
+    // there is no reason to even fetch the quest object, since the event provides everything already....
     if (auto* pQuest = static_cast<TESQuest*>(TESForm::GetById(apEvent->formId)))
     {
         if (IsNonSyncableQuest(pQuest))
@@ -206,43 +195,42 @@ BSTEventResult QuestService::OnEvent(const TESQuestStartStopEvent* apEvent, cons
     return BSTEventResult::kOk;
 }
 
+void QuestService::DebugDumpQuests()
+{
+    auto& quests = FormManager::Get()->quests;
+    for (auto* it : quests)
+    {
+        std::printf("%x|%d|%d|%s\n", it->formID, it->type, it->priority, it->idName.AsAscii());
+    }
+}
+
 void QuestService::OnDraw() noexcept
 {
     auto* pPlayer = PlayerCharacter::Get();
     if (!pPlayer) return;
 
-    ImGui::Begin("Player Quest Log");
+    #if 1
+    ImGui::Begin("QuestLog");
 
-    if (ImGui::Button("lol"))
-        SetQuestStage(0x000D517A, 0)->SetActive(true);
-
-    if (ImGui::Button("Finish Civial War"))
-        SetQuestStage(0x000D517A, 200)->SetActive(true);
-
-    if (ImGui::Button("Kill Quest"))
-        StopQuest(0x000D517A);
-
-    for (auto i = 0; i < (pPlayer->questTargets.length * 2); i += 2)
+    for (auto &it : pPlayer->objectives)
     {
-        auto* pObjective = pPlayer->questTargets[i];
-        auto* pQuest = pObjective->quest;
-
+        auto* pQuest = it.instance->quest;
         if (pQuest->IsActive())
         {
-            ImGui::TextColored({255.f, 0.f, 255.f, 255.f}, "%s|%d|%x @ %p", pQuest->idName.AsAscii(), pQuest->IsActive(),
-                        pQuest->flags, (void*)pQuest);
+            ImGui::TextColored({255.f, 0.f, 255.f, 255.f}, "%s|%x @ %p", pQuest->idName.AsAscii(),
+                               pQuest->flags, (void*)pQuest);
 
             for (auto* it : pQuest->stages)
             {
                 ImGui::TextColored({0.f, 255.f, 255.f, 255.f}, "Stage: %d|%x", it->stageIndex, it->flags);
-            
             }
         }
         else
         {
-            ImGui::Text("%s|%d|%x",  pQuest->idName.AsAscii(), pQuest->IsActive(),
-                        pQuest->flags);
+            ImGui::Text("%s|%d|%x", pQuest->idName.AsAscii(), pQuest->IsActive(), pQuest->flags);
         }
     }
+
     ImGui::End();
+    #endif
 }

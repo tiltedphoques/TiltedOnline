@@ -15,14 +15,20 @@ struct PlayerCharacter : Actor
 
     const GameArray<TintMask*>& GetTints() const noexcept;
 
-    struct QuestTarget
+    struct Objective
     {
         BSFixedString name;
         TESQuest* quest;
     };
 
+    struct ObjectiveInstance
+    {
+        Objective* instance;
+        uint64_t instanceCount;
+    };
+
     uint8_t pad1[0x580 - sizeof(Actor)];
-    GameArray<QuestTarget*> questTargets; 
+    GameArray<ObjectiveInstance> objectives; 
     char pad588[0x538 - 8];
     TESForm *locationForm;
     uint8_t padAC8[0x40];
@@ -35,7 +41,7 @@ struct PlayerCharacter : Actor
     TESQuest* GetQuest(uint32_t aFormId) const noexcept;
 };
 
-static_assert(offsetof(PlayerCharacter, questTargets) == 0x580);
+static_assert(offsetof(PlayerCharacter, objectives) == 0x580);
 static_assert(offsetof(PlayerCharacter, locationForm) == 0xAC8);
 static_assert(offsetof(PlayerCharacter, baseTints) == 0xB10);
 static_assert(offsetof(PlayerCharacter, overlayTints) == 0xB28);
