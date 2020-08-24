@@ -15,7 +15,9 @@
 
 #include <Services/ImguiService.h>
 #include <Services/DiscordService.h>
+
 #include <imgui.h>
+#include <imgui_internal.h>
 
 #include <Messages/AuthenticationResponse.h>
 #include <Messages/ServerMessageFactory.h>
@@ -196,6 +198,12 @@ void TransportService::OnDraw() noexcept
         ImGui::InputFloat("User In kBps", (float*)&uncompressedReceived, 0.f, 0.f, "%.3f", ImGuiInputTextFlags_ReadOnly);
         ImGui::End();
     }
+
+    // online indicator
+    auto& io = ImGui::GetIO();
+    ImGui::GetBackgroundDrawList()->AddRectFilled(
+        ImVec2(23.f, 23.f), 
+        ImVec2(50.f, 50.f), IsOnline() ? ImColor(0, 230, 64) : ImColor(240, 52, 52));
 }
 
 void TransportService::HandleAuthenticationResponse(const AuthenticationResponse& acMessage) noexcept

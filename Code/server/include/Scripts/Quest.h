@@ -10,7 +10,7 @@ namespace Script
             m_id(aId), m_stage(aStage), m_pWorld(&aWorld)
         {}
 
-        [[nodiscard]] inline uint32_t GetId() const
+        [[nodiscard]] uint32_t GetId() const
         {
             return m_id;
         }
