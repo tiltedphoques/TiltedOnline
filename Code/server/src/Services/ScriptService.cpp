@@ -113,28 +113,28 @@ std::tuple<bool, String> ScriptService::HandlePlayerJoin(const Script::Player& a
     return CallCancelableEvent("onPlayerJoin", aPlayer);
 }
 
-void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::DisconnectReason aReason) noexcept
+void ScriptService::HandlePlayerQuit(ConnectionId_t aConnectionId, Server::EDisconnectReason aReason) noexcept
 {
     std::string reason;
 
     switch (aReason)
     {
-    case Server::DisconnectReason::Quit:
+    case Server::EDisconnectReason::Quit:
         reason = "Quit";
         break;
-    case Server::DisconnectReason::Kicked:
+    case Server::EDisconnectReason::Kicked:
         reason = "Kicked";
         break;
-    case Server::DisconnectReason::Banned:
+    case Server::EDisconnectReason::Banned:
         reason = "Banned";
         break;
-    case Server::DisconnectReason::BadConnection:
+    case Server::EDisconnectReason::BadConnection:
         reason = "Connection lost";
         break;
-    case Server::DisconnectReason::TimedOut:
+    case Server::EDisconnectReason::TimedOut:
         reason = "Timed out";
         break;
-    case Server::DisconnectReason::Unknown:
+    case Server::EDisconnectReason::Unknown:
     default:
         reason = "Unknown";
         break;

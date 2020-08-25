@@ -125,7 +125,7 @@ void GameServer::OnConnection(const ConnectionId_t aHandle)
     SetTitle();
 }
 
-void GameServer::OnDisconnection(const ConnectionId_t aConnectionId, DisconnectReason aReason)
+void GameServer::OnDisconnection(const ConnectionId_t aConnectionId, EDisconnectReason aReason)
 {
     StackAllocator<1 << 14> allocator;
     ScopedAllocator _{ allocator };
