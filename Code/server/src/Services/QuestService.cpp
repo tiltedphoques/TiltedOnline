@@ -87,7 +87,11 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
         const Script::Player player(*it, m_world);
         m_world.GetScriptService().HandleQuestStop(player, message.Id.BaseId);
 
-        entries.erase(questIt);
+        if (questIt != entries.end())
+        {
+            entries.erase(questIt);
+            spdlog::warn("Unable to delete quest object {:x}", message.Id.BaseId);
+        }
     }
 }
   
