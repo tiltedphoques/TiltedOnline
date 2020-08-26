@@ -101,22 +101,24 @@ void QuestService::OnQuestUpdate(const NotifyQuestUpdate& aUpdate) noexcept
 TESQuest* QuestService::SetQuestStage(uint32_t aFormId, uint16_t aStage)
 {
     TESQuest* pQuest = RTTI_CAST(TESForm::GetById(aFormId), TESForm, TESQuest);
-
-    // force quest update
-    pQuest->flags |= TESQuest::Enabled | TESQuest::Started;
-    pQuest->scopedStatus = -1;
-
-    bool bNeedsRegistration = false;
-    if (pQuest->UnkSetRunning(bNeedsRegistration, false))
+    if (pQuest)
     {
-        auto* pCallbackMgr = QuestCallbackManager::Get();
+        // force quest update
+        pQuest->flags |= TESQuest::Enabled | TESQuest::Started;
+        pQuest->scopedStatus = -1;
 
-        if (bNeedsRegistration)
-            pCallbackMgr->RegisterQuest(aFormId);
-        else
+        bool bNeedsRegistration = false;
+        if (pQuest->UnkSetRunning(bNeedsRegistration, false))
         {
-            pQuest->SetStage(aStage);
-            return pQuest;
+            auto* pCallbackMgr = QuestCallbackManager::Get();
+
+            if (bNeedsRegistration)
+                pCallbackMgr->RegisterQuest(aFormId);
+            else
+            {
+                pQuest->SetStage(aStage);
+                return pQuest;
+            }
         }
     }
 
