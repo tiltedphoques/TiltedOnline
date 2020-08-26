@@ -90,6 +90,9 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
         if (questIt != entries.end())
         {
             entries.erase(questIt);
+        }
+        else
+        {
             spdlog::warn("Unable to delete quest object {:x}", message.Id.BaseId);
         }
     }
