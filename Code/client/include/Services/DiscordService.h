@@ -13,7 +13,7 @@ class DiscordService final : public entt::registry
     // noop currently
     void Update();
 
-    inline auto& GetUser()
+    inline auto& GetUser() const noexcept
     {
         return m_userData;
     }

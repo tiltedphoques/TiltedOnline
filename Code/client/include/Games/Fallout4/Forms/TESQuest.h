@@ -25,16 +25,16 @@ struct TESQuest : BGSStoryManagerTreeForm
         TESQuest* parent;
         char pad10[0x8];       // 0x0010
         uint16_t flags;        // 0x0018
-        char pad_1A[0x2];      // 0x001A
+        char pad1A[0x2];       // 0x001A
         uint16_t stageId;      // 0x001C
     };
 
     struct Stage
     {
         uint32_t pad0;
-        char pad_0x0004[0x4];     // 0x0004
+        char pad4[0x4];           // 0x0004
         uint16_t stageIndex;      // 0x0008
-        char pad_A[0x6];          // 0x000A
+        char padA[0x6];           // 0x000A
         int32_t someArrayCount;   // 0x0010
         char pad14[0x6];          // 0x0014
         uint8_t flags;            // 0x001A

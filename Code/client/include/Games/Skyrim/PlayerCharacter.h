@@ -37,8 +37,6 @@ struct PlayerCharacter : Actor
     GameArray<TintMask*>* overlayTints;
 
     uint8_t padPlayerEnd[0xBE0 - 0xB30];
-
-    TESQuest* GetQuest(uint32_t aFormId) const noexcept;
 };
 
 static_assert(offsetof(PlayerCharacter, objectives) == 0x580);

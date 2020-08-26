@@ -461,6 +461,8 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
         for (auto& objective : PlayerCharacter::Get()->objectives)
         {
             auto* pQuest = objective.instance->quest;
+            if (!pQuest)
+                continue;
 
             GameId Id;
             if (!QuestService::IsNonSyncableQuest(pQuest))

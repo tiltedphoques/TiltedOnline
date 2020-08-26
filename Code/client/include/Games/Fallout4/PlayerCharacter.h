@@ -27,8 +27,6 @@ struct PlayerCharacter : Actor
     char pad7F0[0x4F0 - 24];
     TESForm* locationForm; //actually a bgslocation
     uint8_t pad_CD0[0x140];
-
-    TESQuest* GetQuest(uint32_t aFormId) const noexcept;
 };
 
 static_assert(sizeof(PlayerCharacter) == 0xE10);

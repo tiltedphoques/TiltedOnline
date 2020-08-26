@@ -20,6 +20,8 @@
 #include <Messages/RequestQuestUpdate.h>
 #include <Messages/NotifyQuestUpdate.h>
 
+#define QUEST_DEBUG 0
+
 static TESQuest* FindQuestByNameId(const String &name)
 {
     auto& questRegistry = FormManager::Get()->quests;
@@ -35,8 +37,11 @@ QuestService::QuestService(World& aWorld, entt::dispatcher& aDispatcher, ImguiSe
 {
     m_joinedConnection = aDispatcher.sink<ConnectedEvent>().connect<&QuestService::OnConnected>(this);
     m_leftConnection = aDispatcher.sink<DisconnectedEvent>().connect<&QuestService::OnDisconnected>(this);
-    m_drawConnection = aImguiService.OnDraw.connect<&QuestService::OnDraw>(this);
     m_questUpdateConnection = aDispatcher.sink<NotifyQuestUpdate>().connect<&QuestService::OnQuestUpdate>(this);
+
+#if QUEST_DEBUG
+    m_drawConnection = aImguiService.OnDraw.connect<&QuestService::OnDraw>(this);
+#endif
 }
 
 //Idea: ToggleQuestActiveStatus(__int64 a1)
@@ -221,16 +226,16 @@ void QuestService::DebugDumpQuests()
 
 void QuestService::OnDraw() noexcept
 {
+#if QUEST_DEBUG
     auto* pPlayer = PlayerCharacter::Get();
     if (!pPlayer) return;
 
-    #if 1
     ImGui::Begin("QuestLog");
-    ImGui::Text("Quest Count %d", pPlayer->objectives.length);
-
     for (auto &objective : pPlayer->objectives)
     {
         auto* pQuest = objective.instance->quest;
+        if (!pQuest)
+            continue;
 
         if (IsNonSyncableQuest(pQuest))
             continue;
@@ -240,9 +245,9 @@ void QuestService::OnDraw() noexcept
             ImGui::TextColored({255.f, 0.f, 255.f, 255.f}, "%s|%x|%s", pQuest->idName.AsAscii(),
                                pQuest->flags, pQuest->fullName.value.AsAscii());
 
-            for (auto* it : pQuest->stages)
+            for (auto* stage : pQuest->stages)
             {
-                ImGui::TextColored({0.f, 255.f, 255.f, 255.f}, "Stage: %d|%x", it->stageIndex, it->flags);
+                ImGui::TextColored({0.f, 255.f, 255.f, 255.f}, "Stage: %d|%x", stage->stageIndex, stage->flags);
             }
         }
         else
@@ -250,7 +255,6 @@ void QuestService::OnDraw() noexcept
             ImGui::Text("%s|%x|%s", pQuest->idName.AsAscii(), pQuest->flags, pQuest->fullName.value.AsAscii());
         }
     }
-
     ImGui::End();
-    #endif
+#endif
 }

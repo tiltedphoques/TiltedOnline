@@ -52,9 +52,9 @@ struct TESQuest : BGSStoryManagerTreeForm
     };
 
     TESFullName fullName;
-    char pad_30[0x20];             // 0x0030
+    char pad30[0x20];              // 0x0030
     GameArray<void*> aliases;      // 0x0058
-    char pad_70[0x6C];             // 0x0070
+    char pad70[0x6C];              // 0x0070
     uint16_t flags;                // 0x00DC default init: 256
     uint8_t priority;              // 0x00DE
     uint8_t type;                  // 0x00DF
@@ -62,9 +62,9 @@ struct TESQuest : BGSStoryManagerTreeForm
     uint32_t padE4;
     GameList<Stage> stages;            // 0x00E8
     GameList<Objective> objectives;    // 0x00F8
-    char pad_108[0x100];               // 0x0108
+    char pad108[0x100];                // 0x0108
     GameArray<uint64_t> N000008BE;     // 0x0208
-    char pad_210[8];                   // 0x0210
+    char pad210[8];                    // 0x0210
     uint16_t currentStage;             // 0x0228 
     char pad228[2];
     BSString idName; // < this is the proper quest ID
