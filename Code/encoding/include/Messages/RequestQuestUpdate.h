@@ -24,7 +24,7 @@ struct RequestQuestUpdate final : ClientMessage
             GetOpcode() == acRhs.GetOpcode();
     }
 
-    enum StatusCode
+    enum StatusCode : uint8_t
     {
         StageUpdate,
         Stopped,

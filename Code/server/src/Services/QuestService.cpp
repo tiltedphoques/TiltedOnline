@@ -83,10 +83,11 @@ void QuestService::HandleQuestChanges(const PacketEvent<RequestQuestUpdate>& acM
     else if (message.Status == RequestQuestUpdate::Stopped)
     {
         spdlog::info("Stopped quest: {:x}", message.Id.BaseId);
-        entries.erase(questIt);
 
         const Script::Player player(*it, m_world);
         m_world.GetScriptService().HandleQuestStop(player, message.Id.BaseId);
+
+        entries.erase(questIt);
     }
 }
   

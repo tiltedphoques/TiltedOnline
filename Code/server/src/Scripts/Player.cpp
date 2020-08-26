@@ -66,7 +66,7 @@ namespace Script
         return false;
     }
 
-    bool Player::HasMod(const std::string aModName) const noexcept
+    bool Player::HasMod(const std::string& aModName) const noexcept
     {
         auto& mods = m_pWorld->get<PlayerComponent>(m_entity).Mods;
 

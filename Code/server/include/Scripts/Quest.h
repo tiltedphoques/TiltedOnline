@@ -15,17 +15,17 @@ namespace Script
             return m_id;
         }
 
-        [[nodiscard]] inline uint16_t GetStage() const
+        [[nodiscard]] uint16_t GetStage() const
         {
             return m_stage;
         }
 
         void SetStage(uint16_t aNewStage, std::vector<Player> aPlayers);
 
-        //World *
-
     private:
-        World* m_pWorld = nullptr;
+        // in order to keep quests copyable we need
+        // to store the world as a pointer and non reference
+        World* m_pWorld;
         uint32_t m_id = 0;
         uint16_t m_stage = 0;
     };

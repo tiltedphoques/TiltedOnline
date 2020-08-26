@@ -463,13 +463,20 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
             auto* pQuest = objective.instance->quest;
 
             GameId Id;
-            if (!QuestService::IsNonSyncableQuest(pQuest) && modSystem.GetServerModId(pQuest->formID, Id))
+            if (!QuestService::IsNonSyncableQuest(pQuest))
             {
-                auto& entry = questLog.emplace_back();
-                entry.Stage = pQuest->currentStage;
-                entry.Id = Id;
+                if (modSystem.GetServerModId(pQuest->formID, Id))
+                {
+                    auto& entry = questLog.emplace_back();
+                    entry.Stage = pQuest->currentStage;
+                    entry.Id = Id;
+                }
             }
         }
+
+        // remove duplicates
+        auto ip = std::unique(questLog.begin(), questLog.end());
+        questLog.resize(std::distance(questLog.begin(), ip));
     }
 
     message.InventoryContent = pActor->GetInventory();

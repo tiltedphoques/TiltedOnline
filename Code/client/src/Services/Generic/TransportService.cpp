@@ -175,7 +175,7 @@ void TransportService::OnCellChangeEvent(const CellChangeEvent& acEvent) const n
 
 void TransportService::OnDraw() noexcept
 {
-    if(IsOnline())
+    if (m_connected)
     {
         ImGui::Begin("Network");
         auto status = GetConnectionStatus();
@@ -203,7 +203,7 @@ void TransportService::OnDraw() noexcept
     auto& io = ImGui::GetIO();
     ImGui::GetBackgroundDrawList()->AddRectFilled(
         ImVec2(23.f, 23.f), 
-        ImVec2(50.f, 50.f), IsOnline() ? ImColor(0, 230, 64) : ImColor(240, 52, 52));
+        ImVec2(50.f, 50.f), m_connected ? ImColor(0, 230, 64) : ImColor(240, 52, 52));
 }
 
 void TransportService::HandleAuthenticationResponse(const AuthenticationResponse& acMessage) noexcept

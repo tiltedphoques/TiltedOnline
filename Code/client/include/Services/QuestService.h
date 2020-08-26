@@ -14,8 +14,7 @@ struct TESQuest;
 
 class QuestService final : public 
     BSTEventSink<TESQuestStartStopEvent>, 
-    BSTEventSink<TESQuestStageEvent>,
-    BSTEventSink<TESQuestStageItemDoneEvent>
+    BSTEventSink<TESQuestStageEvent>
 {
 public:
     QuestService(World&, entt::dispatcher&, ImguiService&);

@@ -19,7 +19,7 @@ bool QuestLog::operator!=(const QuestLog& acRhs) const noexcept
 
 void QuestLog::Serialize(TiltedPhoques::Buffer::Writer& aWriter) const noexcept
 {
-    Serialization::WriteVarInt(aWriter, Entries.size());
+    aWriter.WriteBits(Entries.size() & 0xFFFF, 16);
     for (auto& e : Entries)
     {
         e.Id.Serialize(aWriter);
@@ -31,10 +31,12 @@ void QuestLog::Serialize(TiltedPhoques::Buffer::Writer& aWriter) const noexcept
 
 void QuestLog::Deserialize(TiltedPhoques::Buffer::Reader& aReader) noexcept
 {
-    const auto count = Serialization::ReadVarInt(aReader);
+    uint64_t temp;
+    aReader.ReadBits(temp, 16);
+
+    const size_t count = temp & 0xFFFF;
     Entries.resize(count);
 
-    uint64_t temp;
     for (auto& e : Entries)
     {
         e.Id.Deserialize(aReader);

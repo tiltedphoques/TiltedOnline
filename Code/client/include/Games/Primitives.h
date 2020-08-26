@@ -38,7 +38,7 @@ struct GameArray
         return Iterator(&data[length]);
     }
 
-    inline bool empty() const noexcept
+    inline bool Empty() const noexcept
     {
         return length == 0;
     }
@@ -101,7 +101,7 @@ struct GameList
 
     Entry entry;
 
-    inline bool empty() const noexcept
+    inline bool Empty() const noexcept
     {
         return entry.data == nullptr;
     }
