@@ -65,8 +65,8 @@ void QuestService::OnConnected(const ConnectedEvent&) noexcept
     auto* pPlayer = PlayerCharacter::Get();
     for (auto& objective : pPlayer->objectives)
     {
-        auto* pQuest = objective.instance->quest;
-        pQuest->SetActive(false);
+        if (auto* pQuest = objective.instance->quest)
+            pQuest->SetActive(false);
     }
 }
 
@@ -100,7 +100,7 @@ void QuestService::OnQuestUpdate(const NotifyQuestUpdate& aUpdate) noexcept
 
 TESQuest* QuestService::SetQuestStage(uint32_t aFormId, uint16_t aStage)
 {
-    TESQuest* pQuest = static_cast<TESQuest*>(TESForm::GetById(aFormId));
+    TESQuest* pQuest = RTTI_CAST(TESForm::GetById(aFormId), TESForm, TESQuest);
 
     // force quest update
     pQuest->flags |= TESQuest::Enabled | TESQuest::Started;

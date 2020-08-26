@@ -200,7 +200,6 @@ void TransportService::OnDraw() noexcept
     }
 
     // online indicator
-    auto& io = ImGui::GetIO();
     ImGui::GetBackgroundDrawList()->AddRectFilled(
         ImVec2(23.f, 23.f), 
         ImVec2(50.f, 50.f), m_connected ? ImColor(0, 230, 64) : ImColor(240, 52, 52));
