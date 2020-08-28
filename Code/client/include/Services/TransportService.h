@@ -44,7 +44,7 @@ private:
 
     World& m_world;
     entt::dispatcher& m_dispatcher;
-    bool m_connected;
+    std::atomic<bool> m_connected;
 
     entt::scoped_connection m_updateConnection;
     entt::scoped_connection m_cellChangeConnection;

@@ -13,7 +13,6 @@
 #include <Services/PapyrusService.h>
 #include <Services/DiscordService.h>
 #include <Services/EnvironmentService.h>
-#include <Services/QuestService.h>
 
 #include <Events/PreUpdateEvent.h>
 #include <Events/UpdateEvent.h>
@@ -34,7 +33,6 @@ World::World()
     set<PapyrusService>(m_dispatcher);
     set<DiscordService>(m_dispatcher);
     set<EnvironmentService>(*this, m_dispatcher);
-    set<QuestService>(*this, m_dispatcher, ctx<ImguiService>());
 }
 
 World::~World() = default;
@@ -51,6 +49,7 @@ void World::Update() noexcept
 
     // Force run this before so we get the tasks scheduled to run
     m_runner.OnUpdate(UpdateEvent(cDeltaSeconds));
+
     m_dispatcher.trigger(UpdateEvent(cDeltaSeconds));
 }
 

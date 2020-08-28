@@ -23,7 +23,6 @@ struct AuthenticationRequest final : ClientMessage
             GetOpcode() == achRhs.GetOpcode();
     }
 
-    uint64_t DiscordId;
     String Token;
     Mods Mods;
 };

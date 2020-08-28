@@ -37,11 +37,6 @@ struct GameArray
     {
         return Iterator(&data[length]);
     }
-
-    inline bool Empty() const noexcept
-    {
-        return length == 0;
-    }
 };
 
 template <class T>
@@ -100,11 +95,6 @@ struct GameList
     };
 
     Entry entry;
-
-    inline bool Empty() const noexcept
-    {
-        return entry.data == nullptr;
-    }
 
     // Range for loop compatibility
     struct Iterator 

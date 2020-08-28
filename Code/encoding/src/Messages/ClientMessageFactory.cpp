@@ -11,7 +11,6 @@
 #include <Messages/ClientRpcCalls.h>
 #include <Messages/RequestInventoryChanges.h>
 #include <Messages/RequestFactionsChanges.h>
-#include <Messages/RequestQuestUpdate.h>
 
 #include <iostream>
 
@@ -39,7 +38,6 @@ UniquePtr<ClientMessage> ClientMessageFactory::Extract(TiltedPhoques::Buffer::Re
         EXTRACT_MESSAGE(ClientRpcCalls);
         EXTRACT_MESSAGE(RequestInventoryChanges);
         EXTRACT_MESSAGE(RequestFactionsChanges);
-        EXTRACT_MESSAGE(RequestQuestUpdate);
     }
 
     return UniquePtr<ClientMessage>(nullptr, &TiltedPhoques::Delete<ClientMessage>);

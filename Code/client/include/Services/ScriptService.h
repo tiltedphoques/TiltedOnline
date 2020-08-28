@@ -14,7 +14,6 @@ struct FormIdComponent;
 struct World;
 struct UpdateEvent;
 struct ImguiService;
-struct GameEventHandler;
 
 struct ScriptService : ScriptStore
 {
