@@ -4,7 +4,7 @@
 
 @import 'env';
 
-@include font('assets/fonts', 'Roboto Condensed', (
+@include font('/assets/fonts', 'Roboto Condensed', (
   ( light, both ),
   ( regular, both ),
   ( bold, both )
