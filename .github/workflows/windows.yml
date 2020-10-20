@@ -18,8 +18,10 @@ jobs:
         Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
         
     - name: Generate solution
-      working-directory: ${{runner.workspace}}/Build
-      run: ./MakeVS2019Projects.bat
+      run: |
+        dir
+        cd Build
+        ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
       run: |
