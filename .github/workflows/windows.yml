@@ -27,8 +27,13 @@ jobs:
 
     - name: Build Solution (windows)
       run: |
+        dir
+        cd DXSDK
+        dir
+        cd ..
         cd Build/projects
         set DXSDK_DIR="${{ github.workspace }}\DXSDK"
+        echo %DXSDK_DIR%
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
     - name: Upload Skyrim Artifacts
