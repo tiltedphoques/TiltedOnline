@@ -11,12 +11,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-
-    - name: Download DirectX SDK
-      run: |
-        powershell.exe Invoke-WebRequest https://download.skyrim-together.com/DXSDK.zip -OutFile DXSDK.zip
-        Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
-        setx DXSDK_DIR "${{ github.workspace }}\DXSDK"
         
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
@@ -28,7 +22,7 @@ jobs:
 
     - name: Build Solution (windows)
       run: |
-        set
+        cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
     - name: Upload Skyrim Artifacts
@@ -61,12 +55,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-
-    - name: Download DirectX SDK
-      run: |
-        powershell.exe Invoke-WebRequest https://download.skyrim-together.com/DXSDK.zip -OutFile DXSDK.zip
-        Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
-        setx DXSDK_DIR "${{ github.workspace }}\DXSDK"
         
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
