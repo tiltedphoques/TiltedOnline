@@ -1,0 +1,29 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    name: build-windows-release
+    runs-on: build-windows
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+
+    - name: Download DirectX SDK
+      run: |
+        powershell.exe Invoke-WebRequest https://download.skyrim-together.com/DXSDK.zip -OutFile DXSDK.zip
+        Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
+        
+    - name: Generate solution
+      working-directory: ${{runner.workspace}}/Build
+      run: |
+        cd Build
+        ./MakeVS2019Projects.bat
+
+    - name: Build Solution (windows)
+      run: |
+        cd Build/projects
+        MSBuild.exe "Tilted Online Framework.sln"
