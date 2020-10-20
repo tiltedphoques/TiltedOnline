@@ -16,6 +16,7 @@ jobs:
       run: |
         powershell.exe Invoke-WebRequest https://download.skyrim-together.com/DXSDK.zip -OutFile DXSDK.zip
         Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
+        setx DXSDK_DIR "${{ github.workspace }}\DXSDK"
         
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
@@ -32,7 +33,7 @@ jobs:
         dir
         cd ..
         cd Build/projects
-        set DXSDK_DIR="${{ github.workspace }}\DXSDK"
+       
         echo %DXSDK_DIR%
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
@@ -71,6 +72,7 @@ jobs:
       run: |
         powershell.exe Invoke-WebRequest https://download.skyrim-together.com/DXSDK.zip -OutFile DXSDK.zip
         Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
+        setx DXSDK_DIR "${{ github.workspace }}\DXSDK"
         
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
@@ -78,13 +80,10 @@ jobs:
     - name: Generate solution
       run: |
         cd Build
-        echo "DXSDK_DIR=${{ github.workspace }}\DXSDK" >> $GITHUB_ENV
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
       run: |
-        set DXSDK_DIR="${{ github.workspace }}\DXSDK"
-        echo %DXSDK_DIR%
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
         
