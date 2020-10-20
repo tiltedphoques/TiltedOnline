@@ -27,7 +27,7 @@ jobs:
 
     - name: Build Solution (windows)
       run: |
-        echo ::set-env name=DXSDK_DIR::$HOME/DXSDK/
+        echo ::set-env name=DXSDK_DIR::$GITHUB_WORKSPACE/DXSDK/
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
@@ -79,7 +79,7 @@ jobs:
       env: 
         DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
-        echo ::set-env name=DXSDK_DIR::$HOME/DXSDK/
+        echo ::set-env name=DXSDK_DIR::$GITHUB_WORKSPACE/DXSDK/
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
         
