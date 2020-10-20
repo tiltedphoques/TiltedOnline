@@ -29,6 +29,28 @@ jobs:
       run: |
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -property:Configuration=Release
+        
+    - name: Upload Skyrim Artifacts
+      uses: actions/upload-artifact@v2.2.0
+      with:
+        name: skyrim-artifacts
+        path: |
+          Build/bin/x64/tp_process.exe
+          Build/bin/x64/Loader.exe
+          Build/bin/x64/Proxy.dll
+          Build/bin/x64/SkyrimTogether.dll
+          Build/bin/x64/SkyrimTogetherServer.exe
+
+    - name: Upload Fallout4 Artifacts
+      uses: actions/upload-artifact@v2.2.0
+      with:
+        name: fallout4-artifacts
+        path: |
+          Build/bin/x64/tp_process.exe
+          Build/bin/x64/Loader.exe
+          Build/bin/x64/Proxy.dll
+          Build/bin/x64/FalloutTogether.dll
+          Build/bin/x64/FalloutTogetherServer.exe
   
   build-debug:
     name: Build Windows Debug
@@ -56,25 +78,3 @@ jobs:
       run: |
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -property:Configuration=Debug
-        
-    - name: Upload Skyrim Artifacts
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: skyrim-artifacts
-        path: |
-          Build/bin/x64/tp_process.exe
-          Build/bin/x64/Loader.exe
-          Build/bin/x64/Proxy.dll
-          Build/bin/x64/SkyrimTogether.dll
-          Build/bin/x64/SkyrimTogetherServer.exe
-
-    - name: Upload Fallout4 Artifacts
-      uses: actions/upload-artifact@v2.2.0
-      with:
-        name: fallout4-artifacts
-        path: |
-          Build/bin/x64/tp_process.exe
-          Build/bin/x64/Loader.exe
-          Build/bin/x64/Proxy.dll
-          Build/bin/x64/FalloutTogether.dll
-          Build/bin/x64/FalloutTogetherServer.exe
