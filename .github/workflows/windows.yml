@@ -27,7 +27,7 @@ jobs:
 
     - name: Build Solution (windows)
       env: 
-        DXSDK_DIR: $HOME/DXSDK
+        DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
@@ -78,7 +78,7 @@ jobs:
 
     - name: Build Solution (windows)
       env: 
-        DXSDK_DIR: $HOME/DXSDK
+        DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
