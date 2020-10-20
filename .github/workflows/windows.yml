@@ -5,7 +5,7 @@ on: [push]
 jobs:
   build:
     name: build-windows-release
-    runs-on: windows
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
