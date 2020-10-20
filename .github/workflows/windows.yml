@@ -26,9 +26,11 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
+      env: 
+        DXSDK_DIR: $HOME/DXSDK
       run: |
         cd Build/projects
-        MSBuild.exe "Tilted Online Framework.sln" -property:Configuration=Release
+        MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
     - name: Upload Skyrim Artifacts
       uses: actions/upload-artifact@v2.2.0
@@ -75,6 +77,8 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
+      env: 
+        DXSDK_DIR: $HOME/DXSDK
       run: |
         cd Build/projects
-        MSBuild.exe "Tilted Online Framework.sln" -property:Configuration=Debug
+        MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
