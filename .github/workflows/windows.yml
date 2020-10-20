@@ -19,9 +19,7 @@ jobs:
         
     - name: Generate solution
       working-directory: ${{runner.workspace}}/Build
-      run: |
-        cd Build
-        ./MakeVS2019Projects.bat
+      run: ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
       run: |
