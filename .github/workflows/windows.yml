@@ -6,9 +6,7 @@ jobs:
   build-release:
     name: Build Windows Release
     runs-on: windows-latest
-    env: 
-      DXSDK_DIR: ${{ env.HOME }}/DXSDK
-
+    
     steps:
     - uses: actions/checkout@v2
       with:
@@ -28,8 +26,11 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
+      env: 
+        DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
         cd Build/projects
+        echo %DXSDK_DIR%
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
     - name: Upload Skyrim Artifacts
@@ -57,8 +58,6 @@ jobs:
   build-debug:
     name: Build Windows Debug
     runs-on: windows-latest
-    env: 
-      DXSDK_DIR: ${{ env.HOME }}/DXSDK
 
     steps:
     - uses: actions/checkout@v2
@@ -79,8 +78,11 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
+      env: 
+        DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
         cd Build/projects
+        echo %DXSDK_DIR%
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
         
   build-linux-release:
