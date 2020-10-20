@@ -26,6 +26,8 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
+      env:
+        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
         echo ::set-env name=DXSDK_DIR::$GITHUB_WORKSPACE/DXSDK/
         cd Build/projects
@@ -76,8 +78,8 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
-      env: 
-        DXSDK_DIR: ${{ env.HOME }}/DXSDK
+      env:
+        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
         echo ::set-env name=DXSDK_DIR::$GITHUB_WORKSPACE/DXSDK/
         cd Build/projects
