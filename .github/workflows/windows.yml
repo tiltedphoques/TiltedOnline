@@ -17,9 +17,11 @@ jobs:
         powershell.exe Invoke-WebRequest https://download.skyrim-together.com/DXSDK.zip -OutFile DXSDK.zip
         Expand-Archive -Path DXSDK.zip -DestinationPath DXSDK
         
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+  
     - name: Generate solution
       run: |
-        dir
         cd Build
         ./MakeVS2019Projects.bat
 
