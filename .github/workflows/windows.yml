@@ -26,11 +26,9 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
-      env: 
-        DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
+        echo ::set-env name=DXSDK_DIR::$HOME/DXSDK/
         cd Build/projects
-        echo %DXSDK_DIR%
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
     - name: Upload Skyrim Artifacts
@@ -81,8 +79,8 @@ jobs:
       env: 
         DXSDK_DIR: ${{ env.HOME }}/DXSDK
       run: |
+        echo ::set-env name=DXSDK_DIR::$HOME/DXSDK/
         cd Build/projects
-        echo %DXSDK_DIR%
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
         
   build-linux-release:
@@ -99,8 +97,6 @@ jobs:
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get install g++-10 g++-10-multilib
-        sudo update-alternatives --remove-all gcc
-        sudo update-alternatives --remove-all g++
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
         sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100
         sudo update-alternatives --set cc /usr/bin/gcc
@@ -153,8 +149,6 @@ jobs:
         sudo add-apt-repository ppa:ubuntu-toolchain-r/test
         sudo apt-get update
         sudo apt-get install g++-10 g++-10-multilib
-        sudo update-alternatives --remove-all gcc
-        sudo update-alternatives --remove-all g++
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
         sudo update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 100
         sudo update-alternatives --set cc /usr/bin/gcc
