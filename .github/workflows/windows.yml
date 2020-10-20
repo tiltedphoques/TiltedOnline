@@ -26,10 +26,8 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
-      env:
-        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
-        echo ::set-env name=DXSDK_DIR::$GITHUB_WORKSPACE/DXSDK/
+        echo ::set-env name=DXSDK_DIR::${{ github.workspace }}/DXSDK/
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Release
         
@@ -78,10 +76,8 @@ jobs:
         ./MakeVS2019Projects.bat
 
     - name: Build Solution (windows)
-      env:
-        GITHUB_WORKSPACE: ${{ github.workspace }}
       run: |
-        echo ::set-env name=DXSDK_DIR::$GITHUB_WORKSPACE/DXSDK/
+        echo ::set-env name=DXSDK_DIR::${{ github.workspace }}/DXSDK/
         cd Build/projects
         MSBuild.exe "Tilted Online Framework.sln" -m -property:Configuration=Debug
         
