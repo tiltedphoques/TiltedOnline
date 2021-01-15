@@ -216,10 +216,13 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["ip"] = sol::readonly_property(&Player::GetIp);
     playerType["party"] = sol::readonly_property(&Player::GetParty);
     playerType["discordid"] = sol::readonly_property(&Player::GetDiscordId);
+    // Lua doesn't like Vector3s, so I made it be an array instead. Index starts at 1, rather than 0. Player.position[1] is x, Player.position[2] is y, Player.position[3] is z. Not sure why that is though - bable631
+    playerType["position"] = sol::readonly_property(&Player::GetPositionL);
     playerType["AddComponent"] = &Player::AddComponent;
     playerType["AddQuest"] = &Player::AddQuest;
     playerType["GetQuests"] = &Player::GetQuests;
     playerType["RemoveQuest"] = &Player::RemoveQuest; 
+
 
     auto questType = aContext.new_usertype<Quest>("Quest", sol::no_constructor);
     questType["id"] = sol::readonly_property(&Quest::GetId);

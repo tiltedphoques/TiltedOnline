@@ -43,6 +43,14 @@ namespace Script
         auto& movementComponent = m_pWorld->get<MovementComponent>(m_entity);
         return movementComponent.Position;
     }
+    //Lua doesn't like Vector3s, so I made it be an array instead. Index starts at 1, rather than 0. Player.position[1] is x, Player.position[2] is y, Player.position[3] is z. Not sure why that is though - bable631
+    const std::initializer_list<float> Player::GetPositionL() const
+    {
+        auto& movementComponent = m_pWorld->get<MovementComponent>(m_entity);
+        std::initializer_list<float> arr = {movementComponent.Position.m_x, movementComponent.Position.m_y,
+                                            movementComponent.Position.m_z};
+        return arr;
+    }
 
     const Vector3<float>& Player::GetRotation() const
     {
