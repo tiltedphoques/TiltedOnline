@@ -934,8 +934,14 @@ void CharacterService::RunSpawnUpdates() const noexcept
 
 void CharacterService::ApplyCachedInventoryChanges() noexcept
 {
-    if (!World::Get().ctx<PapyrusService>().Get("UI", "IsMenuOpen"))
+
+    static bool papyrusFunctionsInitialized = false;
+
+    if (!papyrusFunctionsInitialized && !World::Get().ctx<PapyrusService>().Get("UI", "IsMenuOpen"))
         return;
+    else
+        papyrusFunctionsInitialized = true;
+         
 
     GLOBAL_PAPYRUS_FUNCTION(bool, UI, IsMenuOpen, BSFixedString)
 
