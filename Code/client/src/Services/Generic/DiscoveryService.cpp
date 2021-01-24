@@ -30,7 +30,7 @@ void DiscoveryService::VisitCell(bool aForceTrigger) noexcept
     if (!pPlayer)
         return;
 
-    auto playerView = m_world.view<PlayerComponent>();
+    //auto playerView = m_world.view<PlayerComponent>();
 
     const auto cellId = pPlayer->GetCellId();
     const auto name = pPlayer->GetName();
