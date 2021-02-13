@@ -6,6 +6,6 @@ export const environment = {
   baseUrl: "skyrim-together.com",
   intervalPingWebSocket: 5, // seconds
   watermarkText: "nightly",
-  chatMessageLengthLimit: 127,
+  chatMessageLengthLimit: 256,
   nbReconnectionAttempts: 5
 };
