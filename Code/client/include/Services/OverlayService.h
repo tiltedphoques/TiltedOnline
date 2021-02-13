@@ -14,6 +14,7 @@ struct World;
 struct ConnectedEvent;
 struct DisconnectedEvent;
 struct CellChangeEvent;
+struct NotifyChatMessageBroadcast;
 struct TransportService;
 
 using TiltedPhoques::OverlayApp;
@@ -49,6 +50,7 @@ protected:
     void OnConnected(const ConnectedEvent&) noexcept;
     void OnDisconnectedEvent(const DisconnectedEvent&) noexcept;
     void OnCellChangeEvent(const CellChangeEvent&) noexcept;
+    void OnChatMessageReceived(const NotifyChatMessageBroadcast&) noexcept;
 
 
 private:
@@ -64,4 +66,5 @@ private:
     entt::scoped_connection m_connectedConnection;
     entt::scoped_connection m_disconnectedConnection;
     entt::scoped_connection m_cellChangeEventConnection;
+    entt::scoped_connection m_chatMessageConnection;
 };

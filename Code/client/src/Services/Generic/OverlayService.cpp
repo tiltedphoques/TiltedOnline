@@ -15,6 +15,8 @@
 #include <Events/DisconnectedEvent.h>
 #include <Events/CellChangeEvent.h>
 
+#include <Messages/NotifyChatMessageBroadcast.h>
+
 #include <Services/OverlayClient.h>
 #include <Services/TransportService.h>
 
@@ -52,6 +54,8 @@ OverlayService::OverlayService(World& aWorld, TransportService& transport, entt:
     m_connectedConnection = aDispatcher.sink<ConnectedEvent>().connect<&OverlayService::OnConnected>(this);
     m_disconnectedConnection = aDispatcher.sink<DisconnectedEvent>().connect<&OverlayService::OnDisconnectedEvent>(this);
     m_cellChangeEventConnection = aDispatcher.sink<CellChangeEvent>().connect<&OverlayService::OnCellChangeEvent>(this);
+    m_chatMessageConnection =
+        aDispatcher.sink<NotifyChatMessageBroadcast>().connect<&OverlayService::OnChatMessageReceived>(this);
 }
 
 OverlayService::~OverlayService() noexcept
@@ -137,11 +141,24 @@ void OverlayService::SendSystemMessage(const std::string& acMessage)
     m_pOverlay->ExecuteAsync("systemmessage", pArguments);
 }
 
+void OverlayService::OnChatMessageReceived(const NotifyChatMessageBroadcast& acMessage) noexcept
+{
+    if (!m_pOverlay)
+        return;
+
+    auto pArguments = CefListValue::Create();
+    pArguments->SetString(0, acMessage.PlayerName.c_str());
+    pArguments->SetString(1, acMessage.ChatMessage.c_str());
+    std::string sString = acMessage.ChatMessage.c_str();
+    spdlog::info("Received Message from Server and send it to UI: " + sString);
+    m_pOverlay->ExecuteAsync("message", pArguments);
+}
+
 void OverlayService::OnConnected(const ConnectedEvent&) noexcept
 {
     m_connected = true;
     m_pOverlay->ExecuteAsync("connect");
-    SendSystemMessage("Successful connections to server");
+    SendSystemMessage("Successfully connected to server");
 }
 
 void OverlayService::OnDisconnectedEvent(const DisconnectedEvent&) noexcept
