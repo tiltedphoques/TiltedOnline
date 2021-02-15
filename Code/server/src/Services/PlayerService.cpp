@@ -10,6 +10,8 @@
 #include <Messages/SendChatMessageRequest.h>
 #include <Messages/NotifyChatMessageBroadcast.h>
 
+#include <regex>;
+
 PlayerService::PlayerService(World& aWorld, entt::dispatcher& aDispatcher) noexcept
     : m_world(aWorld)
     , m_cellEnterConnection(aDispatcher.sink<PacketEvent<EnterCellRequest>>().connect<&PlayerService::HandleCellEnter>(this)),
@@ -89,7 +91,9 @@ void PlayerService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>&
 
     NotifyChatMessageBroadcast notifyMessage;
     notifyMessage.PlayerName = playerComponent.Username;
-    notifyMessage.ChatMessage = acMessage.Packet.ChatMessage;
+
+    std::regex escapeHtml{"<[^>]+>\s+(?=<)|<[^>]+>"};
+    notifyMessage.ChatMessage = std::regex_replace(acMessage.Packet.ChatMessage, escapeHtml, "");
 
 
     auto view = m_world.view<PlayerComponent>();
