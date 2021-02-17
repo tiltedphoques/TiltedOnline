@@ -932,11 +932,17 @@ void CharacterService::RunSpawnUpdates() const noexcept
     }
 }
 
+bool IsMenuOpen(const BSFixedString& menuName)
+{
+    static const std::uintptr_t menuManager = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x02F257b0;
+    static const std::uintptr_t functionAddress = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x00EBE150;
+
+    return (*reinterpret_cast<bool (*)(uintptr_t, const BSFixedString*)>(functionAddress))(menuManager, &menuName);
+}
+
 void CharacterService::ApplyCachedInventoryChanges() noexcept
 {
-    GLOBAL_PAPYRUS_FUNCTION(bool, UI, IsMenuOpen, BSFixedString)
-
-    if (s_pIsMenuOpen(BSFixedString("ContainerMenu")))
+    if (IsMenuOpen(BSFixedString("ContainerMenu")))
         return;
 
     auto view = m_world.view<RemoteComponent, FormIdComponent>();
