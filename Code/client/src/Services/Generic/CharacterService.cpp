@@ -934,10 +934,11 @@ void CharacterService::RunSpawnUpdates() const noexcept
 
 bool IsMenuOpen(const BSFixedString& menuName)
 {
-    static const std::uintptr_t menuManager = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x02F257b0;
-    static const std::uintptr_t functionAddress = reinterpret_cast<uintptr_t>(GetModuleHandle(NULL)) + 0x00EBE150;
+    POINTER_SKYRIMSE(uintptr_t, menuManager, 0x142F257b0 - 0x140000000);
+    TP_THIS_FUNCTION(TIsMenuOpen, bool, void, const BSFixedString*);
+    POINTER_SKYRIMSE(TIsMenuOpen, s_isMenuOpenFunc, 0x140EBE150 - 0x140000000);
 
-    return (*reinterpret_cast<bool (*)(uintptr_t, const BSFixedString*)>(functionAddress))(menuManager, &menuName);
+    return ThisCall(s_isMenuOpenFunc, menuManager, &menuName);
 }
 
 void CharacterService::ApplyCachedInventoryChanges() noexcept
