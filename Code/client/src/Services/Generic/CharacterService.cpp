@@ -932,20 +932,18 @@ void CharacterService::RunSpawnUpdates() const noexcept
     }
 }
 
+bool IsMenuOpen(const BSFixedString& menuName)
+{
+    POINTER_SKYRIMSE(uintptr_t, menuManager, 0x142F257b0 - 0x140000000);
+    TP_THIS_FUNCTION(TIsMenuOpen, bool, void, const BSFixedString*);
+    POINTER_SKYRIMSE(TIsMenuOpen, s_isMenuOpenFunc, 0x140EBE150 - 0x140000000);
+
+    return ThisCall(s_isMenuOpenFunc, menuManager, &menuName);
+}
+
 void CharacterService::ApplyCachedInventoryChanges() noexcept
 {
-
-    static bool papyrusFunctionsInitialized = false;
-
-    if (!papyrusFunctionsInitialized && !World::Get().ctx<PapyrusService>().Get("UI", "IsMenuOpen"))
-        return;
-    else
-        papyrusFunctionsInitialized = true;
-         
-
-    GLOBAL_PAPYRUS_FUNCTION(bool, UI, IsMenuOpen, BSFixedString)
-
-    if (s_pIsMenuOpen(BSFixedString("ContainerMenu")))
+    if (IsMenuOpen(BSFixedString("ContainerMenu")))
         return;
 
     auto view = m_world.view<RemoteComponent, FormIdComponent>();
