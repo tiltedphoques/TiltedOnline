@@ -153,6 +153,7 @@ struct TESObjectREFR : TESForm
     void Enable() const noexcept;
     void MoveTo(TESObjectCELL* apCell, const Vector3<float>& acPosition) const noexcept;
 
+
     BSHandleRefObject handleRefObject;
     uintptr_t unk1C;
     IAnimationGraphManagerHolder animationGraphHolder;
