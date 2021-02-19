@@ -4,6 +4,8 @@
 
 #include "Message.h"
 
+using TiltedPhoques::Map;
+
 struct RequestActorMaxValueChanges final : ClientMessage
 {
     RequestActorMaxValueChanges() : ClientMessage(kRequestActorMaxValueChanges)
