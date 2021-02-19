@@ -1,5 +1,6 @@
 #include "Forms/TESObjectCELL.h"
 #include "Forms/TESWorldSpace.h"
+#include "Games/Misc/UI.h"
 #include "Messages/CharacterTravelRequest.h"
 #include "Services/PapyrusService.h"
 
@@ -44,6 +45,8 @@
 #include <Messages/NotifyFactionsChanges.h>
 #include <Messages/NotifyRemoveCharacter.h>
 #include <Messages/NotifyCharacterTravel.h>
+#include <Messages/RequestSpawnData.h>
+#include <Messages/NotifySpawnData.h>
 
 #include <World.h>
 
@@ -72,14 +75,7 @@ CharacterService::CharacterService(World& aWorld, entt::dispatcher& aDispatcher,
     m_factionsConnection = m_dispatcher.sink<NotifyFactionsChanges>().connect<&CharacterService::OnFactionsChanges>(this);
     m_removeCharacterConnection = m_dispatcher.sink<NotifyRemoveCharacter>().connect<&CharacterService::OnRemoveCharacter>(this);
     m_characterTravelConnection = m_dispatcher.sink<NotifyCharacterTravel>().connect<&CharacterService::OnCharacterTravel>(this);
-    m_inventoryConnection =
-        m_dispatcher.sink<NotifyInventoryChanges>().connect<&CharacterService::OnInventoryChanges>(this);
-    m_factionsConnection =
-        m_dispatcher.sink<NotifyFactionsChanges>().connect<&CharacterService::OnFactionsChanges>(this);
-    m_removeCharacterConnection =
-        m_dispatcher.sink<NotifyRemoveCharacter>().connect<&CharacterService::OnRemoveCharacter>(this);
-    m_characterTravelConnection =
-        m_dispatcher.sink<NotifyCharacterTravel>().connect<&CharacterService::OnCharacterTravel>(this);
+    m_remoteSpawnDataReceivedConnection = m_dispatcher.sink<NotifySpawnData>().connect<&CharacterService::OnRemoteSpawnDataReceived>(this);
 }
 
 void CharacterService::OnFormIdComponentAdded(entt::registry& aRegistry, const entt::entity aEntity) const noexcept
@@ -102,7 +98,9 @@ void CharacterService::OnFormIdComponentAdded(entt::registry& aRegistry, const e
 
     if (auto* pRemoteComponent = aRegistry.try_get<RemoteComponent>(aEntity); pRemoteComponent)
     {
-        pActor->SetInventory(pRemoteComponent->SpawnRequest.InventoryContent);
+        RequestSpawnData requestSpawnData;
+        requestSpawnData.Id = pRemoteComponent->Id;
+        m_transport.Send(requestSpawnData);
     }
 
     if (aRegistry.has<RemoteComponent>(aEntity) || aRegistry.has<LocalComponent>(aEntity) || aRegistry.has<WaitingForAssignmentComponent>(aEntity))
@@ -192,7 +190,16 @@ void CharacterService::OnAssignCharacter(const AssignCharacterResponse& acMessag
     m_world.remove<WaitingForAssignmentComponent>(cEntity);
 
     if (m_world.has<LocalComponent>(cEntity) || m_world.has<RemoteComponent>(cEntity))
+    {
+        auto* const pForm = TESForm::GetById(formIdComponent.Id);
+        auto* pActor = RTTI_CAST(pForm, TESForm, Actor);
+
+        if (!pActor)
+            return;
+
+        pActor->SetActorValues(acMessage.AllActorValues);
         return;
+    }
 
     if (acMessage.Owner)
     {
@@ -215,6 +222,8 @@ void CharacterService::OnAssignCharacter(const AssignCharacterResponse& acMessag
 
         InterpolationSystem::Setup(m_world, cEntity);
         AnimationSystem::Setup(m_world, cEntity);
+
+        pActor->SetActorValues(acMessage.AllActorValues);
     }
 }
 
@@ -274,6 +283,7 @@ void CharacterService::OnCharacterSpawn(const CharacterSpawnRequest& acMessage) 
             entity = *itor;
         else
             entity = m_world.create();
+
     }
 
     if (!pActor)
@@ -296,6 +306,36 @@ void CharacterService::OnCharacterSpawn(const CharacterSpawnRequest& acMessage) 
 
     auto& remoteAnimationComponent = m_world.get<RemoteAnimationComponent>(*entity);
     remoteAnimationComponent.TimePoints.push_back(acMessage.LatestAction);
+}
+
+void CharacterService::OnRemoteSpawnDataReceived(const NotifySpawnData& acEvent) const noexcept
+{
+    auto view = m_world.view<RemoteComponent, FormIdComponent>();
+
+    const auto id = acEvent.Id;
+
+    const auto itor = std::find_if(std::begin(view), std::end(view), [view, id](auto entity) {
+        const auto& remoteComponent = view.get<RemoteComponent>(entity);
+
+        return remoteComponent.Id == id;
+    });
+
+    if (itor != std::end(view))
+    {
+        auto& remoteComponent = view.get<RemoteComponent>(*itor);
+        remoteComponent.SpawnRequest.InitialActorValues = acEvent.InitialActorValues;
+        remoteComponent.SpawnRequest.InventoryContent = acEvent.InitialInventory;
+
+        auto& formIdComponent = view.get<FormIdComponent>(*itor);
+        auto* const pForm = TESForm::GetById(formIdComponent.Id);
+        auto* const pActor = RTTI_CAST(pForm, TESForm, Actor);
+
+        if (!pActor)
+            return;
+
+        pActor->SetActorValues(remoteComponent.SpawnRequest.InitialActorValues);
+        pActor->SetInventory(remoteComponent.SpawnRequest.InventoryContent);
+    }
 }
 
 void CharacterService::OnReferencesMoveRequest(const ServerReferencesMoveRequest& acMessage) const noexcept
@@ -556,6 +596,7 @@ void CharacterService::RequestServerAssignment(entt::registry& aRegistry, const 
 
     message.InventoryContent = pActor->GetInventory();
     message.FactionsContent = pActor->GetFactions();
+    message.AllActorValues = pActor->GetEssentialActorValues();
 
     if(isTemporary)
     {
@@ -703,8 +744,9 @@ Actor* CharacterService::CreateCharacterForEntity(entt::entity aEntity) const no
     pActor->rotation.m_x = acMessage.Rotation.X;
     pActor->rotation.m_z = acMessage.Rotation.Y;
     pActor->MoveTo(PlayerCharacter::Get()->parentCell, pInterpolationComponent->Position);
-    pActor->SetInventory(acMessage.InventoryContent);
-    pActor->SetFactions(acMessage.FactionsContent);
+    pActor->SetActorValues(acMessage.InitialActorValues);
+
+    m_world.emplace<WaitingFor3D>(aEntity);
 
     return pActor;
 }
@@ -934,12 +976,7 @@ void CharacterService::RunSpawnUpdates() const noexcept
 
 void CharacterService::ApplyCachedInventoryChanges() noexcept
 {
-    if (!World::Get().ctx<PapyrusService>().Get("UI", "IsMenuOpen"))
-        return;
-
-    GLOBAL_PAPYRUS_FUNCTION(bool, UI, IsMenuOpen, BSFixedString)
-
-    if (s_pIsMenuOpen(BSFixedString("ContainerMenu")))
+    if (UI::Get()->IsOpen(BSFixedString("ContainerMenu")))
         return;
 
     auto view = m_world.view<RemoteComponent, FormIdComponent>();
