@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 
         if (!token.empty() && !name.empty())
         {
-            throw std::runtime_error("A named server cannot have a token set !");
+            throw std::runtime_error("A named server cannot have a token set!");
         }
 
         GameServer server(port, premium, name.c_str(), token.c_str());
