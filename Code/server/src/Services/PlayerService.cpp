@@ -99,7 +99,7 @@ void PlayerService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>&
     auto view = m_world.view<PlayerComponent>();
     for (auto entity : view)
     {
-        spdlog::info("Sending message from Server to client: " + notifyMessage.ChatMessage + " - " + notifyMessage.PlayerName);
+        spdlog::debug("Sending message from Server to client: " + notifyMessage.ChatMessage + " - " + notifyMessage.PlayerName);
         auto& player = view.get<PlayerComponent>(entity);
         GameServer::Get()->Send(player.ConnectionId, notifyMessage);
     }

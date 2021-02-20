@@ -149,7 +149,7 @@ void OverlayService::OnChatMessageReceived(const NotifyChatMessageBroadcast& acM
     auto pArguments = CefListValue::Create();
     pArguments->SetString(0, acMessage.PlayerName.c_str());
     pArguments->SetString(1, acMessage.ChatMessage.c_str());
-    spdlog::info("Received Message from Server and send it to UI: " + acMessage.ChatMessage);
+    spdlog::debug("Received Message from Server and gonna send it to UI: " + acMessage.ChatMessage);
     m_pOverlay->ExecuteAsync("message", pArguments);
 }
 
