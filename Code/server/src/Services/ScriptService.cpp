@@ -6,6 +6,7 @@
 #include <Scripts/Player.h>
 #include <Scripts/Quest.h>
 #include <Scripts/Party.h>
+#include <Scripts/ServerHandle.h>
 
 #include <Events/UpdateEvent.h>
 #include <Events/PlayerEnterWorldEvent.h>
@@ -16,6 +17,7 @@
 #include <Filesystem.hpp>
 #include <Components.h>
 #include <GameServer.h>
+
 
 ScriptService::ScriptService(World& aWorld, entt::dispatcher& aDispatcher)
     : ScriptStore(true)
@@ -212,6 +214,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
 
     auto playerType = aContext.new_usertype<Player>("Player", sol::no_constructor);
     playerType["id"] = sol::readonly_property(&Player::GetId);
+    playerType["name"] = sol::readonly_property(&Player::GetName);
     playerType["mods"] = sol::readonly_property(&Player::GetMods);
     playerType["ip"] = sol::readonly_property(&Player::GetIp);
     playerType["party"] = sol::readonly_property(&Player::GetParty);
@@ -220,6 +223,9 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["AddQuest"] = &Player::AddQuest;
     playerType["GetQuests"] = &Player::GetQuests;
     playerType["RemoveQuest"] = &Player::RemoveQuest; 
+
+    auto serverType = aContext.new_usertype<ServerHandle>("Server", sol::no_constructor);
+    serverType["SendChatMessage"] = &ServerHandle::SendChatMessage;
 
     auto questType = aContext.new_usertype<Quest>("Quest", sol::no_constructor);
     questType["id"] = sol::readonly_property(&Quest::GetId);
