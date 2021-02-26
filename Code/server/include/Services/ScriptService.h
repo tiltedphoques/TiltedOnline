@@ -68,7 +68,6 @@ private:
     using TCallbacks = Vector<sol::function>;
 
     World& m_world;
-
     bool m_eventCanceled{};
     String m_cancelReason;
     Map<String, TCallbacks> m_callbacks;

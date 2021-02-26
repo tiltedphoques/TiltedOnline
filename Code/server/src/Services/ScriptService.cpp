@@ -1,12 +1,12 @@
 #include <Services/ScriptService.h>
 #include <Services/EnvironmentService.h>
+#include <Services/ServerService.h>
 #include <World.h>
 
 #include <Scripts/Npc.h>
 #include <Scripts/Player.h>
 #include <Scripts/Quest.h>
 #include <Scripts/Party.h>
-#include <Scripts/ServerHandle.h>
 
 #include <Events/UpdateEvent.h>
 #include <Events/PlayerEnterWorldEvent.h>
@@ -17,6 +17,7 @@
 #include <Filesystem.hpp>
 #include <Components.h>
 #include <GameServer.h>
+
 
 
 ScriptService::ScriptService(World& aWorld, entt::dispatcher& aDispatcher)
@@ -224,9 +225,6 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     playerType["GetQuests"] = &Player::GetQuests;
     playerType["RemoveQuest"] = &Player::RemoveQuest; 
 
-    auto serverType = aContext.new_usertype<ServerHandle>("Server", sol::no_constructor);
-    serverType["SendChatMessage"] = &ServerHandle::SendChatMessage;
-
     auto questType = aContext.new_usertype<Quest>("Quest", sol::no_constructor);
     questType["id"] = sol::readonly_property(&Quest::GetId);
     questType["GetStage"] = &Quest::GetStage;
@@ -248,6 +246,11 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetDate"] = &EnvironmentService::GetDate;
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
     clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
+
+    auto serverType = aContext.new_usertype<ServerService>("Server", sol::no_constructor);
+    serverType["get"] = [this]() { return &m_world.GetServerService(); };
+    serverType["id"] = &ServerService::GetId;
+    serverType["SendChatMessage"] = &ServerService::SendChatMessage;
 }
 
 void ScriptService::BindStaticFunctions(ScriptContext& aContext) noexcept
