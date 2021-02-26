@@ -249,7 +249,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
 
     auto serverType = aContext.new_usertype<ServerService>("Server", sol::no_constructor);
     serverType["get"] = [this]() { return &m_world.GetServerService(); };
-    serverType["id"] = &ServerService::GetId;
+    serverType["id"] = sol::readonly_property(&ServerService::GetId);
     serverType["SendChatMessage"] = &ServerService::SendChatMessage;
 }
 
