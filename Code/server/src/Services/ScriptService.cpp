@@ -189,6 +189,11 @@ void ScriptService::OnPlayerEnterWorld(const PlayerEnterWorldEvent& acEvent) noe
     CallEvent("onPlayerEnterWorld", cPlayer);
 }
 
+std::tuple<bool, String> ScriptService::HandleChatMessageSend(const Script::Player& aPlayer, const std::string& aMessage) noexcept
+{
+    CallCancelableEvent("onChatMessageSend", aPlayer, aMessage);
+}
+
 void ScriptService::OnRpcCalls(const PacketEvent<ClientRpcCalls>& acRpcCalls) noexcept
 {
     auto& data = acRpcCalls.Packet.Data;
@@ -247,7 +252,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
     clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
 
-    auto serverType = aContext.new_usertype<ChatService>("Server", sol::no_constructor);
+    auto serverType = aContext.new_usertype<ChatService>("Chat", sol::no_constructor);
     serverType["get"] = [this]() { return &m_world.GetChatService(); };
     serverType["SendChatMessage"] = &ChatService::SendChatMessage;
     serverType["BroadcastMessage"] = &ChatService::BroadcastMessage;
