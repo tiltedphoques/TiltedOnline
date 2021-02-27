@@ -31,7 +31,7 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets/sounds/"
             ],
             "styles": [
               "src/styles.scss"
