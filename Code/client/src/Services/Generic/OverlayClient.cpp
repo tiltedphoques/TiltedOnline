@@ -23,10 +23,10 @@ bool OverlayClient::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefR
         auto eventName = pArguments->GetString(0).ToString();
         auto eventArgs = pArguments->GetList(1);
 
-        spdlog::debug(eventName);
-        spdlog::debug(eventArgs->GetString(0).ToString());
-        spdlog::debug(std::to_string(eventArgs->GetInt(1)));
-        spdlog::debug(eventArgs->GetString(2).ToString());
+        spdlog::info(eventName);
+        spdlog::info(eventArgs->GetString(0).ToString());
+        spdlog::info(std::to_string(eventArgs->GetInt(1)));
+        spdlog::info(eventArgs->GetString(2).ToString());
 
 #ifndef PUBLIC_BUILD
         LOG(INFO) << "event=ui_event name=" << eventName;
@@ -35,6 +35,11 @@ bool OverlayClient::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefR
         if (eventName == "connect")
         {
             std::string baseIp = eventArgs->GetString(0);
+            if (baseIp == "localhost")
+            {
+                baseIp = "127.0.0.1";
+            }
+            
             uint16_t port = eventArgs->GetInt(1) ? eventArgs->GetInt(1) : 10578;
             m_transport.Connect(baseIp + ":" + std::to_string(port));
             //iAmAToken = eventArgs->GeString(2);

@@ -1,6 +1,6 @@
 #include <Services/ScriptService.h>
 #include <Services/EnvironmentService.h>
-#include <Services/ServerService.h>
+#include <Services/ChatService.h>
 #include <World.h>
 
 #include <Scripts/Npc.h>
@@ -247,10 +247,10 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
     clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
 
-    auto serverType = aContext.new_usertype<ServerService>("Server", sol::no_constructor);
-    serverType["get"] = [this]() { return &m_world.GetServerService(); };
-    serverType["id"] = sol::readonly_property(&ServerService::GetId);
-    serverType["SendChatMessage"] = &ServerService::SendChatMessage;
+    auto serverType = aContext.new_usertype<ChatService>("Server", sol::no_constructor);
+    serverType["get"] = [this]() { return &m_world.GetChatService(); };
+    serverType["SendChatMessage"] = &ChatService::SendChatMessage;
+    serverType["BroadcastMessage"] = &ChatService::BroadcastMessage;
 }
 
 void ScriptService::BindStaticFunctions(ScriptContext& aContext) noexcept

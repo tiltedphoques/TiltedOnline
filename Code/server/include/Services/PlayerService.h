@@ -16,12 +16,10 @@ struct PlayerService
 protected:
 
     void HandleCellEnter(const PacketEvent<EnterCellRequest>& acMessage) const noexcept;
-    void HandleChatMessage(const PacketEvent<SendChatMessageRequest>& acMessage) const noexcept;
 
 private:
 
     World& m_world;
 
     entt::scoped_connection m_cellEnterConnection;
-    entt::scoped_connection m_chatMessageConnection;
 };

@@ -4,21 +4,23 @@
 
 @import 'env';
 
-/*@include font('assets/fonts', 'Roboto Condensed', (
+/*@include font('/assets/fonts', 'Roboto Condensed', (
   ( light, both ),
   ( regular, both ),
   ( bold, both )
 ));*/
 
-@font-face {
+/*@font-face {
   font-family: 'Roboto Condensed';
-  src: url(assets/fonts/roboto-condensed/regular-normal.ttf) format('truetype') font-weight-normal,
-       url(assets/fonts/roboto-condensed/regular-italic.ttf) format('truetype') font-italic font-weight-normal,
-       url(assets/fonts/roboto-condensed/light-normal.ttf) format('truetype') font-weight-light,
-       url(assets/fonts/roboto-condensed/light-italic.ttf) format('truetype') font-italic font-weight-light,
-       url(assets/fonts/roboto-condensed/bold-normal.ttf) format('truetype') font-weight-bold,
-       url(assets/fonts/roboto-condensed/bold-italic.ttf) format('truetype') font-italic font-weight-bold;
-}
+  src: url(../fonts/roboto-condensed/regular-normal.ttf) format('truetype') font-weight-normal,
+       url(../fonts/roboto-condensed/regular-italic.ttf) format('truetype') font-italic font-weight-normal,
+       url(../fonts/roboto-condensed/light-normal.ttf) format('truetype') font-weight-light,
+       url(../fonts/roboto-condensed/light-italic.ttf) format('truetype') font-italic font-weight-light,
+       url(../fonts/roboto-condensed/bold-normal.ttf) format('truetype') font-weight-bold,
+       url(../fonts/roboto-condensed/bold-italic.ttf) format('truetype') font-italic font-weight-bold;
+}*/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 
 ::selection {
   color: $-color-background;
