@@ -64,8 +64,9 @@ void ChatService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>& a
     std::regex escapeHtml{"<[^>]+>\s+(?=<)|<[^>]+>"};
     notifyMessage.ChatMessage = std::regex_replace(acMessage.Packet.ChatMessage, escapeHtml, "");
 
-    const Script::Player player(*itor, m_world);
-    auto [canceled, reason] = m_world.GetScriptService().HandleChatMessageSend(player, notifyMessage.ChatMessage.c_str());
+    const Script::Player scriptPlayer(*itor, m_world);
+    auto [canceled, reason] =
+        m_world.GetScriptService().HandleChatMessageSend(scriptPlayer, notifyMessage.ChatMessage.c_str());
 
     if (!canceled)
     {
@@ -78,6 +79,4 @@ void ChatService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>& a
             GameServer::Get()->Send(player.ConnectionId, notifyMessage);
         }
     }
-
-    
 }
