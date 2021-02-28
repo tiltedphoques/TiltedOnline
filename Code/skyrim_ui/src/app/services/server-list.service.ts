@@ -13,7 +13,7 @@ export class ServerListService {
   constructor(private http: HttpClient) { }
 
   public getServerList(): Observable<ServerList[]> {
-    return this.http.get<ServerList[]>(`${environment.urlProtocol}://list.${environment.baseUrl}/list`)
+    return this.http.get<ServerList[]>(`${environment.urlProtocol}://${environment.urlPrefix}.${environment.baseUrl}/list`)
       .pipe(
         map((data: any) => data.servers),
       );
