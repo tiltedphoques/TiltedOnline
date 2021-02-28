@@ -7,6 +7,6 @@ export const environment = {
   urlPrefix: "skyrim-reborn-list",
   intervalPingWebSocket: 5, // seconds
   watermarkText: "Browser",
-  chatMessageLengthLimit: 127,
+  chatMessageLengthLimit: 256,
   nbReconnectionAttempts: 5
 };
