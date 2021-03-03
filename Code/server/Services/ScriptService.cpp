@@ -190,6 +190,11 @@ void ScriptService::OnPlayerEnterWorld(const PlayerEnterWorldEvent& acEvent) noe
     CallEvent("onPlayerEnterWorld", cPlayer);
 }
 
+std::tuple<bool, String> ScriptService::HandleChatMessageSend(const Script::Player& aPlayer, const std::string& aMessage) noexcept
+{
+    return CallCancelableEvent("onChatMessageSend", aPlayer, aMessage);
+}
+
 void ScriptService::OnRpcCalls(const PacketEvent<ClientRpcCalls>& acRpcCalls) noexcept
 {
     auto& data = acRpcCalls.Packet.Data;

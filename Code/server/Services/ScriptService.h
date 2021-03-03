@@ -40,6 +40,8 @@ struct ScriptService : ScriptStore
     void HandleQuestStage(const Script::Player& aPlayer, const Script::Quest& aQuest) noexcept;
     void HandleQuestStop(const Script::Player& aPlayer, uint32_t aformId) noexcept;
 
+    std::tuple<bool, String> HandleChatMessageSend(const Script::Player& aPlayer, const std::string& aMessage) noexcept;
+
 protected:
 
     void RegisterExtensions(ScriptContext& aContext) override;
