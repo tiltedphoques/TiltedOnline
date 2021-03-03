@@ -5,6 +5,7 @@
 #include <Services/CharacterService.h>
 #include <Services/EnvironmentService.h>
 #include <Services/QuestService.h>
+#include <Services/ChatService.h>
 
 struct World : entt::registry
 {
@@ -25,6 +26,8 @@ struct World : entt::registry
     const EnvironmentService& GetEnvironmentService() const noexcept { return ctx<EnvironmentService>(); }
     QuestService& GetQuestService() noexcept { return ctx<QuestService>(); }
     const QuestService& GetQuestService() const noexcept { return ctx<QuestService>(); }
+    ChatService& GetChatService() noexcept { return ctx<ChatService>(); }
+    const ChatService& GetChatService() const noexcept { return ctx<ChatService>(); }
 
     [[nodiscard]] static uint32_t ToInteger(entt::entity aEntity) { return to_integral(aEntity); }
 

@@ -2,6 +2,8 @@
 
 #include <Services/ScriptService.h>
 #include <Services/EnvironmentService.h>
+#include <Services/ChatService.h>
+
 #include <World.h>
 
 #include <Scripts/Npc.h>
@@ -214,6 +216,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
 
     auto playerType = aContext.new_usertype<Player>("Player", sol::no_constructor);
     playerType["id"] = sol::readonly_property(&Player::GetId);
+    playerType["name"] = sol::readonly_property(&Player::GetName);
     playerType["mods"] = sol::readonly_property(&Player::GetMods);
     playerType["ip"] = sol::readonly_property(&Player::GetIp);
     playerType["party"] = sol::readonly_property(&Player::GetParty);
@@ -244,6 +247,11 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetDate"] = &EnvironmentService::GetDate;
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
     clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
+
+    auto chatType = aContext.new_usertype<ChatService>("Chat", sol::no_constructor);
+    chatType["get"] = [this]() { return &m_world.GetChatService(); };
+    chatType["SendChatMessage"] = &ChatService::SendChatMessage;
+    chatType["BroadcastMessage"] = &ChatService::BroadcastMessage;
 }
 
 void ScriptService::BindStaticFunctions(ScriptContext& aContext) noexcept

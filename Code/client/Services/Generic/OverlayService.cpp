@@ -66,10 +66,11 @@ OverlayService::~OverlayService() noexcept
 void OverlayService::Create(RenderSystemD3D11* apRenderSystem) noexcept
 {
     m_pOverlay = new OverlayApp(std::make_unique<D3D11RenderProvider>(apRenderSystem));
-
-    m_world.set<OverlayClient>(m_transport, m_pOverlay->GetRenderProvider()->Create());
-    OverlayClient& overlayClient = m_world.ctx<OverlayClient>();
-    m_pOverlay->Initialize(&overlayClient);
+    // DUMBELDOR CHANGE
+    // m_world.set<OverlayClient>(m_transport, m_pOverlay->GetRenderProvider()->Create());
+    // OverlayClient& overlayClient = m_world.ctx<OverlayClient>();
+    // m_pOverlay->Initialize(&overlayClient);
+    m_pOverlay->Initialize();
     m_pOverlay->GetClient()->Create();
 }
 

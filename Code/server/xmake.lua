@@ -6,6 +6,7 @@ target(name)
     --set_basename(name .. "RebornServer")
     set_languages("cxx17")
     add_defines(def)
+	add_cxflags("/bigobj", "/MP")
     add_includedirs(
         ".",
         "../../Libraries/",
