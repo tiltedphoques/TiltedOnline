@@ -8,6 +8,7 @@ namespace TiltedPhoques
 }
 
 struct RenderSystemD3D11;
+struct D3D11RenderProvider;
 struct FormIdComponent;
 struct World;
 struct ConnectedEvent;
@@ -51,6 +52,7 @@ struct OverlayService
 
   private:
     CefRefPtr<OverlayApp> m_pOverlay{nullptr};
+    std::unique_ptr<D3D11RenderProvider> m_pProvider;
 
     World& m_world;
     TransportService& m_transport;

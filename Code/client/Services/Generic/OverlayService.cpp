@@ -33,7 +33,10 @@ struct D3D11RenderProvider final : OverlayApp::RenderProvider, OverlayRenderHand
 
     OverlayRenderHandler* Create() override
     {
-        return new OverlayRenderHandlerD3D11(this);
+        auto* pHandler = new OverlayRenderHandlerD3D11(this);
+        pHandler->SetVisible(true);
+
+        return pHandler;
     }
 
     [[nodiscard]] HWND GetWindow() override
@@ -65,20 +68,25 @@ OverlayService::~OverlayService() noexcept
 
 void OverlayService::Create(RenderSystemD3D11* apRenderSystem) noexcept
 {
-    m_pOverlay = new OverlayApp(std::make_unique<D3D11RenderProvider>(apRenderSystem));
-    // DUMBELDOR CHANGE
-    // m_world.set<OverlayClient>(m_transport, m_pOverlay->GetRenderProvider()->Create());
-    // OverlayClient& overlayClient = m_world.ctx<OverlayClient>();
-    // m_pOverlay->Initialize(&overlayClient);
-    m_pOverlay->Initialize();
+    m_pProvider = std::make_unique<D3D11RenderProvider>(apRenderSystem);
+    m_pOverlay = new OverlayApp(m_pProvider.get(), new ::OverlayClient(m_transport, m_pProvider->Create()));;
+
+    if (!m_pOverlay->Initialize())
+        __debugbreak();
+
     m_pOverlay->GetClient()->Create();
 }
 
 void OverlayService::Render() const noexcept
 {
     const auto view = m_world.view<FormIdComponent>();
-    if (view.empty())
-        return;
+    static bool s_bi = false;
+    if (!s_bi)
+    {
+        m_pOverlay->GetClient()->GetBrowser()->GetHost()->WasResized();
+
+        s_bi = true;
+    }
 
     m_pOverlay->GetClient()->Render();
 }
@@ -90,6 +98,7 @@ void OverlayService::Reset() const noexcept
 
 void OverlayService::Initialize() noexcept
 {
+    m_pOverlay->ExecuteAsync("init");
 }
 
 void OverlayService::SetActive(bool aActive) noexcept
@@ -183,7 +192,7 @@ void OverlayService::OnCellChangeEvent(const CellChangeEvent& aCellChangeEvent) 
     SendSystemMessage("On Cell change event");
     auto pArguments = CefListValue::Create();
     pArguments->SetInt(0, 1);
-    pArguments->SetString(1, "TestCell");
+    pArguments->SetString(1, aCellChangeEvent.Name);
     m_pOverlay->ExecuteAsync("setcell", pArguments);
     spdlog::warn("OnCellChangeEvent end !");
 }

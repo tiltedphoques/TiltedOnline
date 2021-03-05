@@ -184,18 +184,18 @@ void ProcessKeyboard(uint16_t aKey, uint16_t aScanCode, cef_key_event_type_t aTy
     if (!pRenderer)
         return;
 
-    //DUMBELDOR CHANGE
-    //const auto active = overlay.GetActive();
-    const auto active = pRenderer->IsVisible();
+    const auto active = overlay.GetActive();
+    
+    spdlog::debug(aType);
+    spdlog::debug(aKey);
 
     if (aType == KEYEVENT_KEYDOWN && aKey == VK_RCONTROL)
     {
 #if defined(TP_SKYRIM)
-        //DUMBELDOR CHANGE
-        //TiltedPhoques::DInputHook::Get().SetEnabled(!active);
-        //overlay.SetActive(!active);
-        //overlay.SetInGame(true);
-        TiltedPhoques::DInputHook::Get().SetEnabled(!TiltedPhoques::DInputHook::Get().IsEnabled());
+        pRenderer->SetVisible(!active);
+        overlay.SetInGame(true);
+        overlay.SetActive(!active);
+        TiltedPhoques::DInputHook::Get().SetEnabled(!active);
 #else
         pRenderer->SetVisible(!active);
 #endif
