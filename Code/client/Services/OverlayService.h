@@ -45,8 +45,10 @@ struct OverlayService
     void SendSystemMessage(const std::string& acMessage);
 
   protected:
-    void OnConnected(const ConnectedEvent&) noexcept;
+    void OnConnectedEvent(const ConnectedEvent&) noexcept;
     void OnDisconnectedEvent(const DisconnectedEvent&) noexcept;
+    void OnPlayerConnectedEvent(const ConnectedEvent&) noexcept;
+    void OnPlayerDisconnectedEvent(const DisconnectedEvent&) noexcept;
     void OnCellChangeEvent(const CellChangeEvent&) noexcept;
     void OnChatMessageReceived(const NotifyChatMessageBroadcast&) noexcept;
 
@@ -63,6 +65,8 @@ struct OverlayService
 
     entt::scoped_connection m_connectedConnection;
     entt::scoped_connection m_disconnectedConnection;
+    entt::scoped_connection m_playerConnectedConnection;
+    entt::scoped_connection m_playerDisconnectedConnection;
     entt::scoped_connection m_cellChangeEventConnection;
     entt::scoped_connection m_chatMessageConnection;
 };

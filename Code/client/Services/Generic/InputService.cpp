@@ -185,17 +185,13 @@ void ProcessKeyboard(uint16_t aKey, uint16_t aScanCode, cef_key_event_type_t aTy
         return;
 
     const auto active = overlay.GetActive();
-    
-    spdlog::debug(aType);
-    spdlog::debug(aKey);
 
     if (aType == KEYEVENT_KEYDOWN && aKey == VK_RCONTROL)
     {
 #if defined(TP_SKYRIM)
-        pRenderer->SetVisible(!active);
-        overlay.SetInGame(true);
-        overlay.SetActive(!active);
         TiltedPhoques::DInputHook::Get().SetEnabled(!active);
+        overlay.SetActive(!active);
+        overlay.SetInGame(true);
 #else
         pRenderer->SetVisible(!active);
 #endif

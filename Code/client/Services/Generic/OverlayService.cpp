@@ -27,9 +27,7 @@ using TiltedPhoques::OverlayRenderHandlerD3D11;
 
 struct D3D11RenderProvider final : OverlayApp::RenderProvider, OverlayRenderHandlerD3D11::Renderer
 {
-    explicit D3D11RenderProvider(RenderSystemD3D11* apRenderSystem) : m_pRenderSystem(apRenderSystem)
-    {
-    }
+    explicit D3D11RenderProvider(RenderSystemD3D11* apRenderSystem) : m_pRenderSystem(apRenderSystem) {}
 
     OverlayRenderHandler* Create() override
     {
@@ -56,8 +54,10 @@ struct D3D11RenderProvider final : OverlayApp::RenderProvider, OverlayRenderHand
 OverlayService::OverlayService(World& aWorld, TransportService& transport, entt::dispatcher& aDispatcher)
     : m_world(aWorld), m_transport(transport)
 {
-    m_connectedConnection = aDispatcher.sink<ConnectedEvent>().connect<&OverlayService::OnConnected>(this);
+    m_connectedConnection = aDispatcher.sink<ConnectedEvent>().connect<&OverlayService::OnConnectedEvent>(this);
     m_disconnectedConnection = aDispatcher.sink<DisconnectedEvent>().connect<&OverlayService::OnDisconnectedEvent>(this);
+    m_playerConnectedConnection = aDispatcher.sink<ConnectedEvent>().connect<&OverlayService::OnPlayerConnectedEvent>(this);
+    m_playerDisconnectedConnection = aDispatcher.sink<DisconnectedEvent>().connect<&OverlayService::OnPlayerDisconnectedEvent>(this);
     m_cellChangeEventConnection = aDispatcher.sink<CellChangeEvent>().connect<&OverlayService::OnCellChangeEvent>(this);
     m_chatMessageConnection = aDispatcher.sink<NotifyChatMessageBroadcast>().connect<&OverlayService::OnChatMessageReceived>(this);
 }
@@ -79,7 +79,6 @@ void OverlayService::Create(RenderSystemD3D11* apRenderSystem) noexcept
 
 void OverlayService::Render() const noexcept
 {
-    const auto view = m_world.view<FormIdComponent>();
     static bool s_bi = false;
     if (!s_bi)
     {
@@ -103,12 +102,10 @@ void OverlayService::Initialize() noexcept
 
 void OverlayService::SetActive(bool aActive) noexcept
 {
-    /*
-        if (!m_inGame)
-        {
-            return;
-        }
-        */
+    if (!m_inGame)
+        return;
+    if (m_active == aActive)
+        return;
 
     m_active = aActive;
 
@@ -164,7 +161,7 @@ void OverlayService::OnChatMessageReceived(const NotifyChatMessageBroadcast& acM
     m_pOverlay->ExecuteAsync("message", pArguments);
 }
 
-void OverlayService::OnConnected(const ConnectedEvent&) noexcept
+void OverlayService::OnConnectedEvent(const ConnectedEvent&) noexcept
 {
     m_connected = true;
     m_pOverlay->ExecuteAsync("connect");
@@ -176,6 +173,35 @@ void OverlayService::OnDisconnectedEvent(const DisconnectedEvent&) noexcept
     m_connected = false;
     m_pOverlay->ExecuteAsync("disconnect");
     SendSystemMessage("Disconnected from server");
+}
+
+void OverlayService::OnPlayerConnectedEvent(const ConnectedEvent&) noexcept
+{
+    auto pArguments = CefListValue::Create();
+    // pArguments->SetInt(0, SERVERID);
+    // pArguments->SetString(1, USERNAME);
+    // pArguments->SetInt(2, LEVEL);
+    // pArguments->SetString(3, CELLNAME);
+    pArguments->SetInt(0, 1);
+    pArguments->SetString(1, "PLAYER");
+    pArguments->SetInt(2, 7);
+    pArguments->SetString(3, "House");
+    m_pOverlay->ExecuteAsync("playerconnected", pArguments);
+
+    auto pArgumentsHealth = CefListValue::Create();
+    pArgumentsHealth->SetInt(0, 1);
+    pArgumentsHealth->SetInt(0, 100);
+    m_pOverlay->ExecuteAsync("healthset", pArgumentsHealth);
+}
+
+void OverlayService::OnPlayerDisconnectedEvent(const DisconnectedEvent&) noexcept
+{
+    auto pArguments = CefListValue::Create();
+    // pArguments->SetInt(0, SERVERID);
+    // pArguments->SetString(1, USERNAME);
+    pArguments->SetInt(0, 51235);
+    pArguments->SetString(1, "PLAYER");
+    m_pOverlay->ExecuteAsync("playerdisconnected");
 }
 
 void OverlayService::OnCellChangeEvent(const CellChangeEvent& aCellChangeEvent) noexcept
