@@ -16,6 +16,7 @@ struct DisconnectedEvent;
 struct CellChangeEvent;
 struct TransportService;
 struct NotifyChatMessageBroadcast;
+struct NotifyPlayerList;
 
 using TiltedPhoques::OverlayApp;
 
@@ -40,6 +41,8 @@ struct OverlayService
     void SetInGame(bool aInGame) noexcept;
     [[nodiscard]] bool GetInGame() const noexcept;
 
+    void SetVersion(const std::string& acVersion);
+
     OverlayApp* GetOverlayApp() const noexcept { return m_pOverlay.get(); }
 
     void SendSystemMessage(const std::string& acMessage);
@@ -47,10 +50,10 @@ struct OverlayService
   protected:
     void OnConnectedEvent(const ConnectedEvent&) noexcept;
     void OnDisconnectedEvent(const DisconnectedEvent&) noexcept;
-    void OnPlayerConnectedEvent(const ConnectedEvent&) noexcept;
-    void OnPlayerDisconnectedEvent(const DisconnectedEvent&) noexcept;
+    //void OnPlayerLeave(const PlayerLeaveEvent&) noexcept;
     void OnCellChangeEvent(const CellChangeEvent&) noexcept;
     void OnChatMessageReceived(const NotifyChatMessageBroadcast&) noexcept;
+    void OnPlayerList(const NotifyPlayerList&) noexcept;
 
   private:
     CefRefPtr<OverlayApp> m_pOverlay{nullptr};
@@ -65,8 +68,7 @@ struct OverlayService
 
     entt::scoped_connection m_connectedConnection;
     entt::scoped_connection m_disconnectedConnection;
-    entt::scoped_connection m_playerConnectedConnection;
-    entt::scoped_connection m_playerDisconnectedConnection;
     entt::scoped_connection m_cellChangeEventConnection;
     entt::scoped_connection m_chatMessageConnection;
+    entt::scoped_connection m_playerListConnection;
 };

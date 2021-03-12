@@ -51,6 +51,10 @@ void PartyService::OnUpdate(const UpdateEvent& acEvent) noexcept
 
 void PartyService::OnPlayerList(const NotifyPlayerList& acPlayerList) noexcept
 {
+    for (auto& player : acPlayerList.Players)
+    {
+        spdlog::info("ID: {} - Name: {}", player.first, player.second);
+    }
     m_players = acPlayerList.Players;
 }
 

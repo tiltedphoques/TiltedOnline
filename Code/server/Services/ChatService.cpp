@@ -26,6 +26,14 @@ void ChatService::SendChatMessage(Script::Player aPlayer, const std::string aMes
     notifyMessage.ChatMessage = aMessage;
 
     auto& playerComponent = m_world.get<PlayerComponent>(aPlayer.GetEntityHandle());
+
+    spdlog::info("PlayerId: {} - ConnectionId: {}"
+        , aPlayer.GetId(), playerComponent.ConnectionId);
+    if (playerComponent.Character)
+    {
+        spdlog::info("CharacterId: {}", playerComponent.Character.value());
+    }
+
     GameServer::Get()->Send(playerComponent.ConnectionId, notifyMessage);
 }
 

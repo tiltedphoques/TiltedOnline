@@ -18,6 +18,7 @@
 #include <Events/DisconnectedEvent.h>
 
 #include <Messages/NotifyChatMessageBroadcast.h>
+#include <Messages/NotifyPlayerList.h>
 
 #include <Services/OverlayClient.h>
 #include <Services/TransportService.h>
@@ -56,8 +57,7 @@ OverlayService::OverlayService(World& aWorld, TransportService& transport, entt:
 {
     m_connectedConnection = aDispatcher.sink<ConnectedEvent>().connect<&OverlayService::OnConnectedEvent>(this);
     m_disconnectedConnection = aDispatcher.sink<DisconnectedEvent>().connect<&OverlayService::OnDisconnectedEvent>(this);
-    m_playerConnectedConnection = aDispatcher.sink<ConnectedEvent>().connect<&OverlayService::OnPlayerConnectedEvent>(this);
-    m_playerDisconnectedConnection = aDispatcher.sink<DisconnectedEvent>().connect<&OverlayService::OnPlayerDisconnectedEvent>(this);
+    m_playerListConnection = aDispatcher.sink<NotifyPlayerList>().connect<&OverlayService::OnPlayerList>(this);
     m_cellChangeEventConnection = aDispatcher.sink<CellChangeEvent>().connect<&OverlayService::OnCellChangeEvent>(this);
     m_chatMessageConnection = aDispatcher.sink<NotifyChatMessageBroadcast>().connect<&OverlayService::OnChatMessageReceived>(this);
 }
@@ -98,6 +98,7 @@ void OverlayService::Reset() const noexcept
 void OverlayService::Initialize() noexcept
 {
     m_pOverlay->ExecuteAsync("init");
+    SetVersion(BUILD_BRANCH "@" BUILD_COMMIT);
 }
 
 void OverlayService::SetActive(bool aActive) noexcept
@@ -139,6 +140,18 @@ bool OverlayService::GetInGame() const noexcept
     return m_inGame;
 }
 
+
+void OverlayService::SetVersion(const std::string& acVersion)
+{
+    if (!m_pOverlay)
+        return;
+
+    auto pArguments = CefListValue::Create();
+
+    pArguments->SetString(0, acVersion);
+    m_pOverlay->ExecuteAsync("versionset", pArguments);
+}
+
 void OverlayService::SendSystemMessage(const std::string& acMessage)
 {
     if (!m_pOverlay)
@@ -175,34 +188,31 @@ void OverlayService::OnDisconnectedEvent(const DisconnectedEvent&) noexcept
     SendSystemMessage("Disconnected from server");
 }
 
-void OverlayService::OnPlayerConnectedEvent(const ConnectedEvent&) noexcept
+void OverlayService::OnPlayerList(const NotifyPlayerList& acPlayerList) noexcept
 {
-    auto pArguments = CefListValue::Create();
-    // pArguments->SetInt(0, SERVERID);
-    // pArguments->SetString(1, USERNAME);
-    // pArguments->SetInt(2, LEVEL);
-    // pArguments->SetString(3, CELLNAME);
-    pArguments->SetInt(0, 1);
-    pArguments->SetString(1, "PLAYER");
-    pArguments->SetInt(2, 7);
-    pArguments->SetString(3, "House");
-    m_pOverlay->ExecuteAsync("playerconnected", pArguments);
 
-    auto pArgumentsHealth = CefListValue::Create();
-    pArgumentsHealth->SetInt(0, 1);
-    pArgumentsHealth->SetInt(0, 100);
-    m_pOverlay->ExecuteAsync("healthset", pArgumentsHealth);
+    for (auto& player : acPlayerList.Players)
+    {
+        spdlog::info("ID: {} - Name: {}", player.first, player.second);
+
+        auto pArguments = CefListValue::Create();
+        pArguments->SetInt(0, player.first);
+        pArguments->SetString(1, player.second.c_str());
+        pArguments->SetInt(2, 7);
+        pArguments->SetString(3, "House");
+        m_pOverlay->ExecuteAsync("playerconnected", pArguments);
+    }
 }
 
-void OverlayService::OnPlayerDisconnectedEvent(const DisconnectedEvent&) noexcept
+
+
+/*void OverlayService::OnPlayerLeave(const PlayerLeaveEvent& acEvent) noexcept
 {
     auto pArguments = CefListValue::Create();
-    // pArguments->SetInt(0, SERVERID);
-    // pArguments->SetString(1, USERNAME);
-    pArguments->SetInt(0, 51235);
-    pArguments->SetString(1, "PLAYER");
+    pArguments->SetInt(0, SERVERID);
+    pArguments->SetString(1, USERNAME);
     m_pOverlay->ExecuteAsync("playerdisconnected");
-}
+}*/
 
 void OverlayService::OnCellChangeEvent(const CellChangeEvent& aCellChangeEvent) noexcept
 {
