@@ -193,7 +193,7 @@ void OverlayService::OnPlayerList(const NotifyPlayerList& acPlayerList) noexcept
 
     for (auto& player : acPlayerList.Players)
     {
-        spdlog::info("ID: {} - Name: {}", player.first, player.second);
+        spdlog::info("[CLIENT] ID: {} - Name: {}", player.first, player.second);
 
         auto pArguments = CefListValue::Create();
         pArguments->SetInt(0, player.first);

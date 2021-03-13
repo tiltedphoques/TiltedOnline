@@ -9,6 +9,7 @@
 #include <Services/QuestService.h>
 #include <Services/ServerListService.h>
 #include <Services/PartyService.h>
+#include <Services/ActorService.h>
 #include <Services/ChatService.h>
 
 World::World()
@@ -20,6 +21,7 @@ World::World()
     set<ServerListService>(*this, m_dispatcher);
     set<QuestService>(*this, m_dispatcher);
     set<PartyService>(*this, m_dispatcher);
+    set<ActorService>(*this, m_dispatcher);
     set<ChatService>(*this, m_dispatcher);
 
     // late initialize the ScriptService to ensure all components are valid
