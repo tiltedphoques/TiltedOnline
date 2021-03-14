@@ -4,21 +4,23 @@
 #include <GameServer.h>
 
 #include <Scripts/Player.h>
-#include <Services/ChatService.h>
+#include <Services/OverlayService.h>
 
 #include <Messages/NotifyChatMessageBroadcast.h>
 #include <Messages/SendChatMessageRequest.h>
 
+#include <Events/PlayerEnterWorldEvent.h>
+
 #include <regex>;
 
-ChatService::ChatService(World& aWorld, entt::dispatcher& aDispatcher)
+OverlayService::OverlayService(World& aWorld, entt::dispatcher& aDispatcher)
     : m_world(aWorld),
       m_chatMessageConnection(
-          aDispatcher.sink<PacketEvent<SendChatMessageRequest>>().connect<&ChatService::HandleChatMessage>(this))
+          aDispatcher.sink<PacketEvent<SendChatMessageRequest>>().connect<&OverlayService::HandleChatMessage>(this))
 {
 }
 
-void ChatService::SendChatMessage(Script::Player aPlayer, const std::string aMessage)
+void OverlayService::SendChatMessage(Script::Player aPlayer, const std::string aMessage)
 {
     spdlog::debug(aMessage);
     NotifyChatMessageBroadcast notifyMessage;
@@ -27,17 +29,10 @@ void ChatService::SendChatMessage(Script::Player aPlayer, const std::string aMes
 
     auto& playerComponent = m_world.get<PlayerComponent>(aPlayer.GetEntityHandle());
 
-    spdlog::info("[SERVER] PlayerId: {} - ConnectionId: {}"
-        , aPlayer.GetId(), playerComponent.ConnectionId);
-    if (playerComponent.Character)
-    {
-        spdlog::info("[SERVER] CharacterId: {}", playerComponent.Character.value());
-    }
-
     GameServer::Get()->Send(playerComponent.ConnectionId, notifyMessage);
 }
 
-void ChatService::BroadcastMessage(const std::string aMessage)
+void OverlayService::BroadcastMessage(const std::string aMessage)
 {
     NotifyChatMessageBroadcast notifyMessage;
     notifyMessage.PlayerName = "";
@@ -51,7 +46,7 @@ void ChatService::BroadcastMessage(const std::string aMessage)
     }
 }
 
-void ChatService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>& acMessage) const noexcept
+void OverlayService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>& acMessage) const noexcept
 {
     auto playerView = m_world.view<PlayerComponent>();
 
@@ -88,4 +83,20 @@ void ChatService::HandleChatMessage(const PacketEvent<SendChatMessageRequest>& a
             GameServer::Get()->Send(player.ConnectionId, notifyMessage);
         }
     }
+}
+
+void OverlayService::HandlePlayerJoin(const PlayerEnterWorldEvent& acEvent) const noexcept
+{
+    const Script::Player cPlayer(acEvent.Entity, m_world);
+
+    auto& playerComponent = m_world.get<PlayerComponent>(cPlayer.GetEntityHandle());
+
+    spdlog::info("[SERVER] PlayerId: {} - ConnectionId: {}", cPlayer.GetId(), playerComponent.ConnectionId);
+    if (playerComponent.Character)
+    {
+        spdlog::info("[SERVER] CharacterId: {}", playerComponent.Character.value());
+    }
+
+    //TODO 
+    //Send netid, username and default level to all client except to the one that just joined
 }

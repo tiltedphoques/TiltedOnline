@@ -2,7 +2,7 @@
 
 #include <Services/ScriptService.h>
 #include <Services/EnvironmentService.h>
-#include <Services/ChatService.h>
+#include <Services/OverlayService.h>
 
 #include <World.h>
 
@@ -253,10 +253,10 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
     clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
 
-    auto chatType = aContext.new_usertype<ChatService>("Chat", sol::no_constructor);
-    chatType["get"] = [this]() { return &m_world.GetChatService(); };
-    chatType["SendChatMessage"] = &ChatService::SendChatMessage;
-    chatType["BroadcastMessage"] = &ChatService::BroadcastMessage;
+    auto chatType = aContext.new_usertype<OverlayService>("Overlay", sol::no_constructor);
+    chatType["get"] = [this]() { return &m_world.GetOverlayService(); };
+    chatType["SendChatMessage"] = &OverlayService::SendChatMessage;
+    chatType["BroadcastMessage"] = &OverlayService::BroadcastMessage;
 }
 
 void ScriptService::BindStaticFunctions(ScriptContext& aContext) noexcept
