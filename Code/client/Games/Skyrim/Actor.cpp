@@ -231,6 +231,13 @@ ActorValues Actor::GetEssentialActorValues() const noexcept
     return actorValues;
 }
 
+uint16_t Actor::GetLevel() noexcept
+{
+    PAPYRUS_FUNCTION(uint16_t, Actor, GetLevel);
+
+    return s_pGetLevel(this);
+}
+
 void Actor::SetInventory(const Inventory& acInventory) noexcept
 {
     UnEquipAll();
