@@ -4,6 +4,7 @@
 #include <Services/OverlayClient.h>
 
 #include <Services/TransportService.h>
+#include <Messages/SendChatMessageRequest.h>
 
 OverlayClient::OverlayClient(TransportService& aTransport, TiltedPhoques::OverlayRenderHandler* apHandler)
     : TiltedPhoques::OverlayClient(apHandler), m_transport(aTransport)
