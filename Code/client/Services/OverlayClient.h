@@ -6,15 +6,15 @@ struct TransportService;
 
 namespace TiltedPhoques
 {
-    struct OverlayRenderHandler;
+struct OverlayRenderHandler;
 }
 
-struct OverlayClient : public TiltedPhoques::OverlayClient
+struct OverlayClient : TiltedPhoques::OverlayClient
 {
 
   public:
     OverlayClient(TransportService& aTransport, TiltedPhoques::OverlayRenderHandler* apHandler);
-    ~OverlayClient() noexcept;
+    virtual ~OverlayClient() noexcept;
 
     bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId source_process,
                                   CefRefPtr<CefProcessMessage> message) override;
