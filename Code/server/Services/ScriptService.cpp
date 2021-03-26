@@ -2,6 +2,8 @@
 
 #include <Services/ScriptService.h>
 #include <Services/EnvironmentService.h>
+#include <Services/OverlayService.h>
+
 #include <World.h>
 
 #include <Scripts/Npc.h>
@@ -188,6 +190,11 @@ void ScriptService::OnPlayerEnterWorld(const PlayerEnterWorldEvent& acEvent) noe
     CallEvent("onPlayerEnterWorld", cPlayer);
 }
 
+std::tuple<bool, String> ScriptService::HandleChatMessageSend(const Script::Player& aPlayer, const std::string& aMessage) noexcept
+{
+    return CallCancelableEvent("onChatMessageSend", aPlayer, aMessage);
+}
+
 void ScriptService::OnRpcCalls(const PacketEvent<ClientRpcCalls>& acRpcCalls) noexcept
 {
     auto& data = acRpcCalls.Packet.Data;
@@ -214,6 +221,7 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
 
     auto playerType = aContext.new_usertype<Player>("Player", sol::no_constructor);
     playerType["id"] = sol::readonly_property(&Player::GetId);
+    playerType["name"] = sol::readonly_property(&Player::GetName);
     playerType["mods"] = sol::readonly_property(&Player::GetMods);
     playerType["ip"] = sol::readonly_property(&Player::GetIp);
     playerType["party"] = sol::readonly_property(&Player::GetParty);
@@ -244,6 +252,11 @@ void ScriptService::BindTypes(ScriptContext& aContext) noexcept
     clockType["GetDate"] = &EnvironmentService::GetDate;
     clockType["GetTimeScale"] = &EnvironmentService::GetTimeScale;
     clockType["GetRealTime"] = &EnvironmentService::GetRealTime;
+
+    auto chatType = aContext.new_usertype<OverlayService>("Overlay", sol::no_constructor);
+    chatType["get"] = [this]() { return &m_world.GetOverlayService(); };
+    chatType["SendChatMessage"] = &OverlayService::SendChatMessage;
+    chatType["BroadcastMessage"] = &OverlayService::BroadcastMessage;
 }
 
 void ScriptService::BindStaticFunctions(ScriptContext& aContext) noexcept

@@ -11,6 +11,8 @@ struct OverlayRenderHandler;
 
 struct OverlayClient : TiltedPhoques::OverlayClient
 {
+
+  public:
     OverlayClient(TransportService& aTransport, TiltedPhoques::OverlayRenderHandler* apHandler);
     virtual ~OverlayClient() noexcept;
 

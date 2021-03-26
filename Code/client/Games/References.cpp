@@ -150,7 +150,7 @@ void TESObjectREFR::LoadAnimationVariables(const AnimationVariables& aVariables)
             if (!pDescriptor)
             {
                 if ((formID & 0xFF000000) == 0xFF000000)
-                    spdlog::info("Form id {} has {}", formID, pGraph->behaviorGraph->stateMachine->name);
+                    spdlog::debug("Form id {} has {}", formID, pGraph->behaviorGraph->stateMachine->name);
                 return;
             }
 

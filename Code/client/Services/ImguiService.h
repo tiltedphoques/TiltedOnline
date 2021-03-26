@@ -1,6 +1,5 @@
 #pragma once
 
-struct RenderSystemD3D9;
 struct RenderSystemD3D11;
 
 struct ImguiService

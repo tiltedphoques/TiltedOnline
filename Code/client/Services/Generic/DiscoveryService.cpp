@@ -14,6 +14,9 @@
 #include <Events/LocationChangeEvent.h>
 #include <Events/ConnectedEvent.h>
 
+#include <World.h>
+#include <Components.h>
+
 
 DiscoveryService::DiscoveryService(World& aWorld, entt::dispatcher& aDispatcher) noexcept
     : m_world(aWorld)
@@ -30,9 +33,11 @@ void DiscoveryService::VisitCell(bool aForceTrigger) noexcept
         return;
 
     const auto cellId = pPlayer->GetCellId();
+    const auto name = pPlayer->GetName();
+
     if(m_cellId != cellId || aForceTrigger)
     {
-        m_dispatcher.trigger(CellChangeEvent(cellId));
+        m_dispatcher.trigger(CellChangeEvent(cellId, name));
         m_cellId = cellId;
     }
 

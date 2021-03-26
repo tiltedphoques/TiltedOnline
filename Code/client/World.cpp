@@ -7,6 +7,7 @@
 #include <Services/CharacterService.h>
 #include <Services/InputService.h>
 #include <Services/OverlayService.h>
+#include <Services/OverlayClient.h>
 #include <Services/TransportService.h>
 #include <Services/TestService.h>
 #include <Services/RunnerService.h>

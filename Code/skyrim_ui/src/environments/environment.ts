@@ -9,6 +9,7 @@ export const environment = {
   game: true,
   urlProtocol: "https",
   baseUrl: "skyrim-together.com",
+  urlPrefix: "skyrim-reborn-list",
   intervalPingWebSocket: 5, // seconds
   watermarkText: "Dev",
   chatMessageLengthLimit: 127,
