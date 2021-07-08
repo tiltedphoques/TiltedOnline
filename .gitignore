@@ -3,6 +3,7 @@
 *.sym
 
 vsxmake2019
+vsxmake2022
 .xmake
 
 Build

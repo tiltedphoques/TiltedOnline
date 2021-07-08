@@ -7,8 +7,8 @@
 #include <FunctionHook.hpp>
 #include <TiltedCore/Initializer.hpp>
 
-#include "Launcher.h"
 #include "DllBlocklist.h"
+#include "Launcher.h"
 #include "Utils/NtInternal.h"
 
 static fs::path s_OverridePath;
@@ -19,8 +19,9 @@ static HMODULE(WINAPI* RealGetModuleHandleW)(LPCWSTR) = nullptr;
 static HMODULE(WINAPI* RealGetModuleHandleA)(LPSTR) = nullptr;
 static NTSTATUS(WINAPI* RealLdrLoadDll)(const wchar_t*, uint32_t*, UNICODE_STRING*, HANDLE*) = nullptr;
 
-// if the module path functions are called from any TP dll within the TP bin folder we return the real path to TiltedOnline.exe
-bool IsLocalModulePath(void *apAddress)
+// if the module path functions are called from any TP dll within the TP bin folder we return the real path to
+// TiltedOnline.exe
+bool IsLocalModulePath(void* apAddress)
 {
     HMODULE pModule = nullptr;
     GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, reinterpret_cast<LPCWSTR>(apAddress), &pModule);
@@ -33,7 +34,7 @@ bool IsLocalModulePath(void *apAddress)
     // safe way of getting module file name
     size_t i = 1;
     DWORD res = 0;
-    do 
+    do
     {
         buf.resize(i * MAX_PATH);
         res = RealGetModuleFileNameW(pModule, buf.data(), static_cast<DWORD>(buf.length()));
@@ -50,7 +51,7 @@ static DWORD WINAPI TP_GetModuleFileNameW(HMODULE aModule, LPWSTR alpFilename, D
 
     if (aModule == nullptr || aModule == NtInternal::ThePeb()->pImageBase)
     {
-        void* rbp = _ReturnAddress(); 
+        void* rbp = _ReturnAddress();
         if (!IsLocalModulePath(rbp) && GetLauncher())
         {
             auto& aExePath = GetLauncher()->GetExePath();
@@ -88,12 +89,7 @@ HMODULE WINAPI TP_GetModuleHandleW(LPCWSTR alpModuleName)
 {
     TP_EMPTY_HOOK_PLACEHOLDER;
 
-    constexpr wchar_t* kMapList[] = { 
-        L"SkyrimSE.exe", 
-        L"SkyrimVR.exe", 
-        L"Fallout4.exe", 
-        L"Fallout4VR.exe"
-    };
+    constexpr wchar_t* kMapList[] = {L"SkyrimSE.exe", L"SkyrimVR.exe", L"Fallout4.exe", L"Fallout4VR.exe"};
 
     if (alpModuleName)
     {
@@ -114,12 +110,7 @@ HMODULE WINAPI TP_GetModuleHandleA(LPSTR alpModuleName)
 {
     TP_EMPTY_HOOK_PLACEHOLDER;
 
-    constexpr char* kMapList[] = {
-        "SkyrimSE.exe", 
-        "SkyrimVR.exe", 
-        "Fallout4.exe", 
-        "Fallout4VR.exe"
-    };
+    constexpr char* kMapList[] = {"SkyrimSE.exe", "SkyrimVR.exe", "Fallout4.exe", "Fallout4VR.exe"};
 
     if (alpModuleName)
     {
@@ -147,11 +138,11 @@ NTSTATUS WINAPI TP_LdrLoadDll(const wchar_t* apPath, uint32_t* apFlags, UNICODE_
     {
         if (stubs::IsDllBlocked(&fileName[pos + 1]))
         {
-            return STATUS_DLL_NOT_FOUND;
+            // invalid image hash
+            return 0xC0000428;
         }
     }
 
-    // will be used in the future to blacklist mods that break ST/FT
     return RealLdrLoadDll(apPath, apFlags, apFileName, apHandle);
 }
 

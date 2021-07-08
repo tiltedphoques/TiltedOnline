@@ -1,95 +1,76 @@
 
+#include "TitleSelect.h"
 #include <Windows.h>
 #include <spdlog/spdlog.h>
-#include "TitleSelect.h"
 
-#include "utils/Registry.h"
 #include "utils/Error.h"
+#include "utils/Registry.h"
 
-constexpr wchar_t kRegistryPath[] = LR"(Software\TiltedPhoques\TiltedOnline\)";
+constexpr wchar_t kTpRegistryPath[] = LR"(Software\TiltedPhoques\TiltedOnline\)";
+constexpr wchar_t kBethesdaRegPath[] = LR"(Software\Wow6432Node\Bethesda Softworks\)";
 
-WString ToClientName(TitleId aTid) noexcept
+static constexpr Title kTitleMap[] = {{0, L"Unknown", "Unknown", L"Unknown"},
+                                      {489830, L"Skyrim Special Edition", "SkyrimSE", L"SkyrimTogether.dll"},
+                                      {611670, L"Skyrim VR", "SkyrimVR", L"SkyrimTogetherVR.dll"},
+                                      {377160, L"Fallout 4", "Fallout4", L"FalloutTogether.dll"},
+                                      {611660, L"Fallout 4 VR", "Fallout4VR", L"FalloutTogetherVR.dll"},
+                                      {0, L"???", "???", L"???.dll"},
+                                      {480, L"???", "Test", L"Test.dll"}};
+
+// keep this in sync with enum!
+static_assert(sizeof(kTitleMap) / sizeof(Title) == static_cast<size_t>(Title::Id::kCount),
+              "Title map <=> Enum mismatch");
+
+const Title* Title::ToTitle(Title::Id aTid) noexcept
 {
-    switch (aTid)
+    return &kTitleMap[static_cast<int>(aTid)];
+}
+
+// map command line alias to title id, by index
+const Title* Title::ToTitle(const char* acAlias) noexcept
+{
+    for (int i = 0; i < static_cast<int>(Id::kCount); i++)
     {
-    case TitleId::kSkyrimSE:
-        return L"SkyrimTogether.dll";
-    case TitleId::kSyrimVR:
-        return L"SkyrimTogetherVR.dll";
-    case TitleId::kFallout4:
-        return L"FalloutTogether.dll";
-    case TitleId::kFallout4VR:
-        return L"FalloutTogetherVR.dll";
-    default:
-        return L"";
+        if (std::strcmp(kTitleMap[i].shortGameName, acAlias) == 0)
+        {
+            return &kTitleMap[i];
+        }
     }
+
+    return nullptr;
 }
 
-WString ToGameName(TitleId aTid) noexcept
+const Title::Id Title::ToTitleId(const Title& acTitle) noexcept
 {
-    switch (aTid)
+    for (int i = 0; i < static_cast<int>(Id::kCount); i++)
     {
-    case TitleId::kSkyrimSE:
-        return L"Skyrim Special Edition";
-    case TitleId::kSyrimVR:
-        return L"Skyrim VR";
-    case TitleId::kFallout4:
-        return L"Fallout4";
-    case TitleId::kFallout4VR:
-        return L"Fallout4 VR";
-    default:
-        return L"";
+        if (std::memcmp(&kTitleMap[i], &acTitle, sizeof(Title)) == 0)
+        {
+            return static_cast<Id>(i);
+        }
     }
+
+    return Id::kUnknown;
 }
 
-uint32_t ToSteamAppId(TitleId aTid) noexcept
+static std::wstring SuggestTitlePath(const Title& aTitle)
 {
-    switch (aTid)
-    {
-    case TitleId::kSkyrimSE:
-        return 489830;
-    case TitleId::kSyrimVR:
-        return 611670;
-    case TitleId::kFallout4:
-        return 377160;
-    case TitleId::kFallout4VR:
-        return 611660;
-    default:
-        return 0;
-    }
-}
-
-TitleId ToTitleId(std::string_view aName) noexcept
-{
-    if (aName == "SkyrimSE")
-        return TitleId::kSkyrimSE;
-
-    if (aName == "Fallout4")
-        return TitleId::kFallout4;
-
-    if (aName == "SkyrimVR")
-        return TitleId::kSyrimVR;
-
-    return TitleId::kUnknown;
-}
-
-static std::wstring SuggestTitlePath(TitleId aTitleId)
-{
-    auto path = WString(LR"(Software\Wow6432Node\Bethesda Softworks\)") + ToGameName(aTitleId);
+    WString path(kBethesdaRegPath);
+    path += aTitle.fullGameName;
 
     const wchar_t* subName;
-    switch (aTitleId)
+    switch (Title::ToTitleId(aTitle))
     {
-    case TitleId::kSkyrimSE:
-    case TitleId::kSyrimVR:
+    case Title::Id::kSkyrimSE:
+    case Title::Id::kSkyrimVR:
         subName = L"installed path";
         break;
-    case TitleId::kFallout4: 
-    case TitleId::kFallout4VR:
+    case Title::Id::kFallout4:
+    case Title::Id::kFallout4VR:
         subName = L"Installed Path";
         break;
-    case TitleId::kReserved1:
-    case TitleId::kReserved2:
+    case Title::Id::kReserved1:
+    case Title::Id::kReserved2:
     default:
         subName = L"";
     }
@@ -97,9 +78,9 @@ static std::wstring SuggestTitlePath(TitleId aTitleId)
     return Registry::ReadString<wchar_t>(HKEY_LOCAL_MACHINE, path.c_str(), subName);
 }
 
-bool FindTitlePath(TitleId aTid, bool aForceReselect, fs::path& aTitlePath, fs::path& aExePath)
+bool FindTitlePath(const Title& aTitle, bool aForceReselect, fs::path& aTitlePath, fs::path& aExePath)
 {
-    const WString regPath = WString(kRegistryPath) + ToGameName(aTid);
+    const WString regPath = WString(kTpRegistryPath) + aTitle.fullGameName;
 
     // separate, so a custom executable can be chosen for TP
     aTitlePath = Registry::ReadString<wchar_t>(HKEY_CURRENT_USER, regPath.c_str(), L"TitlePath");
@@ -120,7 +101,7 @@ bool FindTitlePath(TitleId aTid, bool aForceReselect, fs::path& aTitlePath, fs::
         file.lpstrTitle = L"Please select your Game executable (*.exe)";
         file.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_EXPLORER;
 
-        auto initialDir = SuggestTitlePath(aTid);
+        auto initialDir = SuggestTitlePath(aTitle);
         file.lpstrInitialDir = initialDir.empty() ? buffer.data() : initialDir.data();
 
         if (!GetOpenFileNameW(&file))
