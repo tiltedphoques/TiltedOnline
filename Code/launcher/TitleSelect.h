@@ -6,21 +6,29 @@ using namespace TiltedPhoques;
 
 namespace fs = std::filesystem;
 
-// must be kept in sync with frontend!
-enum class TitleId : uint32_t
+struct Title
 {
-    kUnknown,
-    kSkyrimSE,
-    kSyrimVR,
-    kFallout4,
-    kFallout4VR,
-    kReserved1,
-    kReserved2,
+    // keep this in sync with the title map!
+    enum class Id
+    {
+        kUnknown,    //< Invalid
+        kSkyrimSE,   //< Skyrim Special Edition
+        kSkyrimVR,   //< Skyrim VR
+        kFallout4,   //< Fallout 4
+        kFallout4VR, //< Fallout 4 VR
+        kReserved1,  //< ???
+        kReserved2,  //< ??? <(-_-)>
+        kCount
+    };
+
+    uint32_t steamAppId;
+    const wchar_t* fullGameName;
+    const char* shortGameName;
+    const wchar_t* tpClientName;
+
+    static const Title* ToTitle(Title::Id aId) noexcept;
+    static const Title* ToTitle(const char* acAlias) noexcept;
+    static const Id ToTitleId(const Title& acTitle) noexcept;
 };
 
-WString ToClientName(TitleId id) noexcept;
-WString ToGameName(TitleId id) noexcept;
-TitleId ToTitleId(std::string_view aName) noexcept;
-uint32_t ToSteamAppId(TitleId) noexcept;
-
-bool FindTitlePath(TitleId aTitle, bool aForceReselect, fs::path& aTitlePath, fs::path& aExePath);
+bool FindTitlePath(const Title& aTitle, bool aForceReselect, fs::path& aTitlePath, fs::path& aExePath);

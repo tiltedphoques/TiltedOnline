@@ -5,6 +5,8 @@ namespace stubs
 {
     // A list of modules blocked for a variety of reasons, but mainly
     // for causing crashes and incompatibility with ST
+    // TODO: signature system
+
     const wchar_t* const kDllBlocklist[] = {
         L"EngineFixes.dll",    // Skyrim Engine Fixes, breaks our hooks
         L"crashhandler64.dll", // Stream crash handler, breaks heap
